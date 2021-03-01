@@ -2,7 +2,7 @@
 
 **Team Members:** 
 
-James Cai, Juho Choi, Richard Durkee, and Micahel Li
+James Cai, Juho Choi, Richard Durkee, and Michael Li
 
 **Team Strengths and Weaknesses:**
 
