@@ -56,6 +56,7 @@ Our main difficulties would lie on making effective and ui/ux friendly playlist.
 - should we mark some users as influencers, who suggest highly-voted-for songs?
 - should we save the playlist after the occasion is over to recommend better songs next time at a given mood/occasion for a party, using how many votes each song got?
 
+TA Approval (dlichen): This idea is really cool, but it has no algorithmic complexity. If you could create an algorithmic component that the application focuses on it could work, but currently denied. 
 ### Idea 2
 
 ***PizzaParty***
@@ -72,6 +73,8 @@ The beauty of this program is that it could store the user’s preferences for n
 
 If this were to be made into a real application, we think it would be best if the program could have the option to split the check in different ways, evenly between each person, or based on what each person ordered. This is probably outside the scope of the class, but a proof of concept could be made for this. 
 
+TA Approval (dlichen): I'm not sure if there would be enough algorithmic complexity in this and there isn't a description of the algorithm you want to use. This is a maybe contingent on the algorithm being sufficiently complex (and also maybe expanding to more than just pizza? location preferences for a party? time preferences? etc? widen the scope maybe).
+
 ### Idea 3
 
 ***BrownTime***
@@ -87,6 +90,10 @@ Everytime provides a distinct server for each university, and what's awesome abo
 The most awesome part of Everytime is that the Critical Review-like functionality operates in an Amazon-like format. Basically, instead of writing a very vague questionnaire at the end of the semester, which was even hand-written before COVID, students give a 5-star based "review" of the course and leave comments about the course, the professor, etc. 
 
 We think that, through 32, it could be a good chance to build a very basic prototype of such platform for Brown students. Focusing on building a better Critical Review is worth a try by itself. 
+
+TA Approval (dlichen): Rejected, there's no algorithmic complexity.
+
+Please resubmit by the end of the week! Either expand on an existing idea or make a new one. 
 
 ****Features****
 
