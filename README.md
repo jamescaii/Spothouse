@@ -57,50 +57,16 @@ Our main difficulties would lie on making effective and ui/ux friendly playlist.
 - should we save the playlist after the occasion is over to recommend better songs next time at a given mood/occasion for a party, using how many votes each song got?
 
 TA Approval (dlichen): This idea is really cool, but it has no algorithmic complexity. If you could create an algorithmic component that the application focuses on it could work, but currently denied. 
-### Idea 2
 
-***PizzaParty***
+***EDIT: Algorithmic Complexity
 
-****Problem and Solution****
+Our ideas regarding algorithmic complexity centers around building the most user-friendly playlist: it would be appreciated to know how much is good enough, either a single idea or an accumulation of these.
 
-Figuring out how much pizza to order, and which kinds, can be a real hassle. With PizzaParty, the host can input a budget and a list of invitees who will be able to enter their taste preferences, how many slices they think they could eat, any allergies they may have, as well as any drinks or sides they want. This would save time for the host and the pizza parlor, as well as making sure that everyone’s voice gets heard in the ordering process. No more trying to memorize what everyone wants, or awkwardly trying to parse through everyone’s orders in a group chat. 
+1. When new songs are requested to the queue, the host can see the songs in an order based on the votes by other users in the virtual room, as well as the similarity of the song with the previously played songs, as to "keep the vibe." This metric would require some kind of complex algorithm to compare songs: or we can apply a recommender system to make a similarity matrix, which would keep getting updated as new songs are added.
+2. Along those lines, when the room is created, the playlist is first made by the host or left blank to be filled up by the users. In this case, we also want to "recommend" the musics as well as the order of the music based on people's suggestions, what they have liked before, what they have voted for before, and so on. This can also use some kind of recommender matrix or another complex data structure.
+3. Since users' votes are used as a metric, it's possible that some users can become more influential in deciding the songs. We thought we could apply an Elo rating system for these users so we can get better playlist. If the Elo rating system tends to create bias, then we also create another metric to reward the users whose requests have not been voted as much, and take their requests as priority before determining the order,.
+4. When the queue is almost ending, we can suggest more songs based on these similarity metrics, and people can vote among these suggestions, and these votes will also then be applied to further suggestions after this.
 
-****Features****
-
-PizzaParty will be responsible for figuring out how to best fulfill everyone’s desires within the budget (if one is provided), and make sure that everyone has enough to eat. This constraint satisfaction won’t be as simple as it sounds -- ideally, the program would be able to solve “close enough” situations, where if someone wants three slices of pineapple and bacon pizza, and other person wants one slice of bacon and ham pizza, the program would know to order a half Hawaiian pizza; unless, of course, one of those two put “pineapple” on their “dislikes” list.
-
-The beauty of this program is that it could store the user’s preferences for next time, as well as past orders for the hosts. That way, if you’re attending a PizzaParty with some new friends, you can simply select “use preset preferences” and no further input will be required! 
-
-If this were to be made into a real application, we think it would be best if the program could have the option to split the check in different ways, evenly between each person, or based on what each person ordered. This is probably outside the scope of the class, but a proof of concept could be made for this. 
-
-TA Approval (dlichen): I'm not sure if there would be enough algorithmic complexity in this and there isn't a description of the algorithm you want to use. This is a maybe contingent on the algorithm being sufficiently complex (and also maybe expanding to more than just pizza? location preferences for a party? time preferences? etc? widen the scope maybe).
-
-### Idea 3
-
-***BrownTime***
-
-****Problem and Solution****
-
-In Korea there's an online platform called Everytime (https://everytime.kr/). About 3.5 million college students in Korea (most of the colleges in the country) use this app. Basically, in terms of Brown, Everytime is a combination of C@B, the Critical Review, Brown's Google Calendar, bits of Canvas (not the full functionality), Dear Blueno, Brown Stank Stash of Memes, Brown Buying and Selling, Brown Textbook Exchange, (and all other Brown Facebook groups you can think of), the Blognonian, and more. In short, Everytime is 'the' go-to place for all school-related groups, websites, and online resources, operating both as an educational platform and a social network. 
-
-Everytime provides a distinct server for each university, and what's awesome about this platform is that you are:
-1. required to enter your school credential to access the school resources (which the company contacts each school to provide as much as they can do)
-2. but at the same "completely" anonymous so that forums like Dear Blueno or the Critical Review are run simultaneously. 
-
-The most awesome part of Everytime is that the Critical Review-like functionality operates in an Amazon-like format. Basically, instead of writing a very vague questionnaire at the end of the semester, which was even hand-written before COVID, students give a 5-star based "review" of the course and leave comments about the course, the professor, etc. 
-
-We think that, through 32, it could be a good chance to build a very basic prototype of such platform for Brown students. Focusing on building a better Critical Review is worth a try by itself. 
-
-TA Approval (dlichen): Rejected, there's no algorithmic complexity.
-
-Please resubmit by the end of the week! Either expand on an existing idea or make a new one. 
-
-****Features****
-
-1. getting the APIs and resources for CAB (and talking with a somewhat unresponsive Registrar office of ours :) )
-2. build and load review page for each class
-3. functionality to make new comments (or comments to comments)
-4. update course average on every new comment
 
 **Mentor TA:** _Put your mentor TA's name and email here once you're assigned one!_
 
