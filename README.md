@@ -67,6 +67,7 @@ Our ideas regarding algorithmic complexity centers around building the most user
 3. Since users' votes are used as a metric, it's possible that some users can become more influential in deciding the songs. We thought we could apply an Elo rating system for these users so we can get better playlist. If the Elo rating system tends to create bias, then we also create another metric to reward the users whose requests have not been voted as much, and take their requests as priority before determining the order,.
 4. When the queue is almost ending, we can suggest more songs based on these similarity metrics, and people can vote among these suggestions, and these votes will also then be applied to further suggestions after this.
 
+TA Approval for resubmission: sounds good! approved.
 
 **Mentor TA:** _Put your mentor TA's name and email here once you're assigned one!_
 
