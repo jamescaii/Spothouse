@@ -76,6 +76,14 @@ _On your first meeting with your mentor TA, you should plan dates for at least t
 
 **Specs, Mockup, and Design Meeting:** Mon, March 15, 5:30pm – 6:00pm
 
+[Specs](https://docs.google.com/document/d/1wTQATpI2NIyrtRdMnlX0_MNCFGjP0qT_ubUSaCsf2rY/edit?usp=sharing)
+
+[Mockup](https://docs.google.com/document/d/1JZr9iEk8QCQDKX5IE9LGijP2L_gYMiVQEy7ehsqspKA/edit?usp=sharing)
+
+[Design](https://docs.google.com/document/d/18Awpq8Bcooi6Yymg3XLWz1PAm3aSPIBVkcALVXz_y44/edit?usp=sharing)
+
+[Design Slides](https://docs.google.com/presentation/d/1-JxMm7RigLZjzIe4XzUw3KtGZwWNpihvBFhpdbSOIYI/edit?usp=sharing)
+
 **4-Way Checkpoint:** _(Schedule for on or before April 5)_
 
 **Adversary Checkpoint:** _(Schedule for on or before April 12 once you are assigned an adversary TA)_
