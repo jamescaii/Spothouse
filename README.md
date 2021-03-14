@@ -69,12 +69,12 @@ Our ideas regarding algorithmic complexity centers around building the most user
 
 TA Approval for resubmission: sounds good! approved.
 
-**Mentor TA:** _Put your mentor TA's name and email here once you're assigned one!_
+**Mentor TA:** Benjamin Silverman
 
 ## Meetings
 _On your first meeting with your mentor TA, you should plan dates for at least the following meetings:_
 
-**Specs, Mockup, and Design Meeting:** _(Schedule for on or before March 15)_
+**Specs, Mockup, and Design Meeting:** Mon, March 15, 5:30pm – 6:00pm
 
 **4-Way Checkpoint:** _(Schedule for on or before April 5)_
 
