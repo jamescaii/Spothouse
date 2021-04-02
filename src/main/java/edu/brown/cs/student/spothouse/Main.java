@@ -25,7 +25,6 @@ public final class Main {
 
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static final int TRAFFIC_INTERVAL = 1000;
 
   /**
    * The initial method called when execution begins.
@@ -88,7 +87,7 @@ public final class Main {
 
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
-    //Spark.post("/route", new RouteHandler());
+    Spark.post("/route", new RouteHandler());
   }
 
 
