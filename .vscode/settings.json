@@ -1,0 +1,4 @@
+{
+    "java.checkstyle.configuration": "${workspaceFolder}\\config\\cs32_checks.xml",
+    "java.checkstyle.version": "8.40"
+}

@@ -1,0 +1,36 @@
+GDPR requires that you specify exactly what you intend to do with each data point. Consider each data point that
+you’re gathering from your users (Name, location, timestamp). Writing to a user, justify why each data point is
+needed in an imaginary final version of your application: what eventual functionality might use the data?
+
+Functionality that might use this data is also a reason to keep it around. If we want to create a user login system,
+so that they can save their favorite routes on their login, knowing their name and information is important for account
+security. If a user wanted to be able to track their friends, similar to the "Find my Friends" app on the iPhone or 
+Snapmaps on Snapchat, knowing the location and timestamp of the previous request is necessary. Adding accounts with 
+the ability to track friends is functionality that would require this information to be remotely successful.
+
+Also, it is very important to be able to keep track of this information from the user for security purposes. 
+Firstly, knowing the location is important for emergency situations. If a fire breaks out in a building on campus, 
+it is incredibly beneficial to the fire department to know exactly how many people are in that building. Knowing the 
+names of users is important for enforcing rules, such as defining pods to ensure adherence to Covid regulations. The 
+timestamp of a request helps both of these functionalities, as it allows the real-time changing of information. It 
+wouldn't be helpful to know that somebody was in the building at some arbitrary point in time if it's on fire.
+
+-
+
+Consider a more complex application that you’ve interacted with before (Facebook, Steam, MyAnimeList) - why might 
+it be difficult to delete all of the data on a user? Consider factors unique to the application you've chosen; 
+specifically those other than volume or size of data.
+
+Steam is a very difficult platform on which to delete "all" of the data on a user. By itself, simply deleting 
+an account is likely not enough-- it will not touch any mentions of you on other profiles. Your information 
+can exist in comments and messages on other profiles that reference your username, profile, or data, and so 
+will continue to exist even if your profile is deleted. Also, Steam is used as a platform on which to download 
+games. Many of these games have cloud servers which record your game state and in-game statistics. Deleting 
+your account likely will not touch this, and for people with libraries of hundreds of games, much of their 
+information will likely be safely stored away in the cloud even if their profile no longer exists. For example, 
+in a 5v5 game, the server will store the information of the game and its players for statistics. If a user 
+deletes their data, the server would have to find that game, find that player, and delete all their information, 
+which would ruin the statistics for that game, and for the other 9 players if they wanted to see it. In ways like this, 
+where your information is saved in a non-accessible place to you, it is very difficult to delete all information on a user.
+
+
