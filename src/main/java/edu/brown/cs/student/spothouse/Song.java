@@ -12,7 +12,10 @@ public class Song implements Votable {
     private List<User> negativeVotes;
     private double score = 0;
 
-
+    /**
+     * A Constructor for the Song class
+     * @param requester - the User who requested the song
+     */
     public Song(User requester) {
         this.requester = requester;
     }
@@ -82,6 +85,17 @@ public class Song implements Votable {
         //todo: remove all of a user's songs after they leave Lobby? (only if they are removed?)
         this.requester.addPositiveVotes(this.positiveVotes.size());
         this.requester.addNegativeVotes(this.negativeVotes.size());
+
+        double userScore = 0;
+
+        for (User user: positiveVotes) {
+            userScore += user.getScore();
+        }
+        for (User user: negativeVotes) {
+            userScore -= user.getScore();
+        }
+
+        this.requester.setScore(userScore);
     }
 
     @Override

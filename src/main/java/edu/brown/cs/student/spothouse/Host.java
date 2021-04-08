@@ -11,7 +11,7 @@ public class Host implements User {
     private int songsSincePlayed = 0;
     private int songsPlayed = 0;
     private int songsLoved = 0;
-    private double score = 0;
+    private double score = 0.5;
 
     /**
      * A constructor for the Host class
@@ -37,7 +37,6 @@ public class Host implements User {
     public void clearVotes() {
         this.positiveVotes = 0;
         this.negativeVotes = 0;
-        this.score = 0;
     }
 
     @Override
@@ -77,11 +76,17 @@ public class Host implements User {
 
     @Override
     public void updateScore() {
-        setScore(positiveVotes
-                - negativeVotes
+//        setScore(positiveVotes
+//                - negativeVotes
+//                + (0.1 * timesVoted)
+//                + (0.1 * songsSincePlayed)
+//                + songsPlayed
+//                + songsLoved);
+
+        setScore( (1 * score)
                 + (0.1 * timesVoted)
                 + (0.1 * songsSincePlayed)
-                + songsPlayed
-                + songsLoved);
+                + (0.1 * songsPlayed)
+                + (0.1 * songsLoved));
     }
 }

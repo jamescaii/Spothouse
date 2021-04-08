@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class representing the algorithm that determines the
+ * A class representing the algorithm that determines the scores of the Votables and Users
  * @param <T> - the type of Votable
  */
 public class Elo<T extends Votable> {
@@ -35,7 +35,7 @@ public class Elo<T extends Votable> {
 
         for (User user: users) {
             user.updateScore();
-            totalScore += user.getScore();
+            totalScore += Math.abs(user.getScore()); //todo: do we want to use the absolute value
         }
 
         for (User user: users) {
@@ -48,7 +48,12 @@ public class Elo<T extends Votable> {
     }
 
     private void logisticFunction(User user) {
-        int k = 1; //steepness of Logistic Function
+        double k = 5.0; //steepness of Logistic function is constant
+        user.setScore(1 / (1 + Math.pow(Math.E, -1 * (k * (user.getScore()/ totalScore))))); //logistic function
+    }
+    //todo: deal with negative User scores...
+    private void logisticFunctionScaled(User user) {
+        double k = (3.0 / Math.log(numUsers + 1)) + 2; //steepness of Logistic function is dependent on # of users
         user.setScore(1 / (1 + Math.pow(Math.E, -1 * (k * (user.getScore()/ totalScore))))); //logistic function
     }
 }

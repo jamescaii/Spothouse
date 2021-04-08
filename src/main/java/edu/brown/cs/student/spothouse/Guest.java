@@ -13,7 +13,7 @@ public class Guest implements User {
     int songsRemovedByHost = 0;
     int songsPlayed = 0;
     int songsLoved = 0;
-    double score = 0;
+    double score = 0.5;
 
     /**
      * Constructor for the Guest class
@@ -24,7 +24,6 @@ public class Guest implements User {
     public void clearVotes() {
         this.positiveVotes = 0;
         this.negativeVotes = 0;
-        this.score = 0;
     }
 
     @Override
@@ -79,13 +78,21 @@ public class Guest implements User {
 
     @Override
     public void updateScore() {
-        setScore(positiveVotes
-                - negativeVotes
+//        setScore(positiveVotes
+//                - negativeVotes
+//                + (0.1 * timesVoted)
+//                + (0.1 * songsSincePlayed)
+//                - songsRemovedByHost
+//                + songsPlayed
+//                + songsLoved);
+
+        setScore( (0.5)
+                + (1 * score)
                 + (0.1 * timesVoted)
                 + (0.1 * songsSincePlayed)
-                - songsRemovedByHost
-                + songsPlayed
-                + songsLoved);
+                - (0.5 * songsRemovedByHost)
+                + (0.1 * songsPlayed)
+                + (0.1 * songsLoved));
     }
 
     /**
