@@ -13,7 +13,7 @@ const Queue = props => {
         {props.songQueue.map(item => 
           <tr>
             <td align="center"><img src={item.artwork} width="50" align="center"/></td>
-            <td align="center" style={{fontSize: 15, padding: 10}}>{item.name}</td>
+            <td align="center" style={{fontSize: 13, padding: 10}}>{item.name}</td>
           </tr>
             )
           }
