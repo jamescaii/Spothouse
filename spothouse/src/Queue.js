@@ -6,7 +6,7 @@ const Queue = props => {
       <h2>Queue</h2>
       <br></br>
       {props.songQueue[0] && (
-      <table id="table" className="table" border="1px" table-layour="fixed">
+      <table id="table" className="table" border="1px" table-layour="fixed" bordercolor="black">
 
       <tbody>
         
