@@ -208,6 +208,8 @@ class SpotHouse extends Component {
                 this.getSearch(this.state.token, this.state.searchQuery)
             }}>Submit</AwesomeButton>
             <br></br>
+            <p style={{fontSize:"small"}}>Click on a song to add it to the queue!</p>
+            <br></br>
             <div class="row">
               <div class="column">
                 {this.state.token && !this.state.no_top_data && (
