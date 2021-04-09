@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const Queue = props => {
   return (
     <div className="App"><center>
-      <h1>Queue</h1>
+      <h2>Queue</h2>
       <br></br>
       {props.songQueue[0] && (
       <table id="table" class="table" width="30%" border="2px" table-layour="fixed">

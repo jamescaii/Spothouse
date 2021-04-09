@@ -61,7 +61,7 @@ class SpotHouse extends Component {
     }
 
     // set interval for polling every 5 seconds
-    this.interval = setInterval(() => this.tick(), 100);
+    this.interval = setInterval(() => this.tick(), 500);
   }
 
   componentWillUnmount() {
@@ -178,7 +178,11 @@ class SpotHouse extends Component {
             <br></br>
             {this.state.searchResults[0].name && (
               <>
-              {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>{item.artist} -<div style={{display: "none"}}>,</div> {item.name}<div style={{display: "none"}}> -, {item.uri} -, {item.artwork}</div></p>)} 
+              {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>
+                {item.artist} -<span style={{display: "none"}}>,</span> 
+                {item.name}<div style={{display: "none"}}> -, 
+                {item.uri} -, 
+                {item.artwork}</div></p>)} 
               </>
             )}
             <br></br>       
