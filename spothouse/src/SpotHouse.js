@@ -143,7 +143,7 @@ class SpotHouse extends Component {
   getTopTracks(token) {
     // Make a call using the token
     $.ajax({
-      url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10",
+      url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=20",
       type: "GET",
       beforeSend: xhr => {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -208,24 +208,34 @@ class SpotHouse extends Component {
                 this.getSearch(this.state.token, this.state.searchQuery)
             }}>Submit</AwesomeButton>
             <br></br>
-            {this.state.searchResults[0].name && (
-              <>
-              {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>
-                {item.artist} -<span style={{display: "none"}}>,</span> {item.name}<div style={{display: "none"}}> -, {item.uri} -, {item.artwork}</div></p>)} 
-              </>
-            )}
+            <div class="row">
+              <div class="column">
+                {this.state.token && !this.state.no_top_data && (
+                  <>     
+                  <h4>Your top tracks:</h4>
+                  <br></br>
+                    {this.state.topTracks.map(item => <p className="search" onClick={item => this.clickResult(item)}>
+                      {item.artist} -<span style={{display: "none"}}>,</span> {item.name}<div style={{display: "none"}}> -, {item.uri} -, {item.artwork}</div></p>)}
+                  <br></br>
+                  </>
+                )}
+              </div>
+              <div class="column">
+                <hr width="300" style={{visibility:"hidden"}}/>
+                {this.state.searchResults[0].name && (
+                  <>
+                  <h4>Search results:</h4>
+                  <br></br>
+                  {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>
+                    {item.artist} -<span style={{display: "none"}}>,</span> {item.name}<div style={{display: "none"}}> -, {item.uri} -, {item.artwork}</div></p>)} 
+                  </>
+                )}
+
+              </div>
+            </div>
+            <br></br>
             </>
-          )}          
-          {this.state.token && !this.state.no_top_data && (
-            <>     
-            <br></br>
-            <h4>Your top tracks:</h4>
-            <br></br>
-              {this.state.topTracks.map(item => <p className="search" onClick={item => this.clickResult(item)}>
-                {item.artist} -<span style={{display: "none"}}>,</span> {item.name}<div style={{display: "none"}}> -, {item.uri} -, {item.artwork}</div></p>)} 
-            <br></br>
-            </>
-          )}
+          )}    
         </header>
         <br></br>
           {this.state.token && !this.state.no_data && (
@@ -235,7 +245,7 @@ class SpotHouse extends Component {
               is_playing={this.state.is_playing}
               progress_ms={this.state.progress_ms}
             />
-            <br></br>
+            
             <Queue 
               songQueue = {this.state.currentQueue}
               />
@@ -244,9 +254,12 @@ class SpotHouse extends Component {
           )}
           {this.state.no_data && (
             <>     
+            
             <Queue 
               songQueue = {this.state.currentQueue}
               />
+            <br></br>
+              
             </>
           )}
       </div>

@@ -51,15 +51,31 @@ body {
 
 .search{
   font-size: small;
-  text-align:left;
   position: relative;
   margin-bottom: 10px;
+  text-align: left;
+}
+
+h4 {
+  
+  text-align: left;
 }
 
 tr td {
   white-space: nowrap;
 }
+.column {
+  float: left;
+  text-align: center;
+  width: 50%;
+}
 
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
 .hidden {
   display: none;
 }
