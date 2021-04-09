@@ -26,7 +26,17 @@ class SpotHouse extends Component {
       progress_ms: 0,
       no_data: false,
       searchQuery: "",
-      searchResults: [""],
+      searchResults: [
+        {
+          name: "",
+          artist: "",
+          uri: "",
+          artwork: "",
+        }
+      ],
+      clickedSongURI: "",
+      currentQueue: [
+      ]
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -81,9 +91,13 @@ class SpotHouse extends Component {
         if(data) {
           console.log(data.tracks.items)
           this.setState({
-            searchResults: data.tracks.items.map((item) => (
-              item.uri + ",," + item.artists[0].name + ",," + item.name
-              )
+            searchResults: data.tracks.items.map((item) => ({
+              name: item.name,
+              artist: item.artists[0].name,
+              uri: item.uri,
+              artwork: item.album.images[0].url
+            }
+          )
           )});
           console.log(this.state.searchResults)
           return;
@@ -124,6 +138,22 @@ class SpotHouse extends Component {
     });
   }
 
+  async clickResult(e) {
+    let clickedArtist = e.currentTarget.textContent.split(" -, ")[0]
+    let clickedName = e.currentTarget.textContent.split(" -, ")[1]
+    let clickedURI = e.currentTarget.textContent.split(" -, ")[2]
+    let clickedArt = e.currentTarget.textContent.split(" -, ")[3]
+    await this.setState({clickedSongURI: clickedURI})
+    var joined = this.state.currentQueue.concat({name: clickedName,
+      artist: clickedArtist,
+      artwork: clickedArt,
+      uri: clickedURI});
+    await this.setState({currentQueue: joined})
+                                                        
+    console.log(this.state.currentQueue)
+    // add to queue
+  }
+
   render() {
     return (
       <div className="App">
@@ -146,7 +176,11 @@ class SpotHouse extends Component {
                 this.getSearch(this.state.token, this.state.searchQuery)
             }}>Submit</AwesomeButton>
             <br></br>
-            {this.state.searchResults.map(item => <p className="search">{item.split(",,").slice(1).join(" - ")}</p>)} 
+            {this.state.searchResults[0].name && (
+              <>
+              {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>{item.artist} -<div style={{display: "none"}}>,</div> {item.name}<div style={{display: "none"}}> -, {item.uri} -, {item.artwork}</div></p>)} 
+              </>
+            )}
             <br></br>       
             </>
           )}
@@ -160,13 +194,17 @@ class SpotHouse extends Component {
               progress_ms={this.state.progress_ms}
             />
             <br></br>
-            <Queue/>
+            <Queue 
+              songQueue = {this.state.currentQueue}
+              />
             <br></br>
             </>
           )}
           {this.state.no_data && (
             <>     
-            <Queue/>
+            <Queue 
+              songQueue = {this.state.currentQueue}
+              />
             </>
           )}
       </div>
