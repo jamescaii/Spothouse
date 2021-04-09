@@ -38,6 +38,7 @@ class SpotHouse extends Component {
       clickedSongURI: "",
       currentQueue: [],
       topTracks: [],
+      count: 0
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -76,7 +77,13 @@ class SpotHouse extends Component {
       this.getCurrentlyPlaying(this.state.token);
     }
   }
-
+  scrollToBottom = () => {
+    this.endPage.scrollIntoView({ behavior: "smooth" });
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.count !== this.state.count)
+      this.scrollToBottom();
+  }
   getSearch(token, searchQuery) {
     // parse searchQuery
     let searchQueryParameter = encodeURIComponent(searchQuery.trim()) 
@@ -181,9 +188,8 @@ class SpotHouse extends Component {
       artwork: clickedArt,
       uri: clickedURI});
     await this.setState({currentQueue: joined})
-                                                        
-    console.log(this.state.currentQueue)
-    // add to queue
+                            
+    this.setState({count: this.state.count + 1})
   }
 
   render() {
@@ -235,7 +241,6 @@ class SpotHouse extends Component {
 
               </div>
             </div>
-            <br></br>
             </>
           )}    
         </header>
@@ -264,6 +269,9 @@ class SpotHouse extends Component {
               
             </>
           )}
+          <div style={{ float:"left", clear: "both" }}
+               ref={(el) => { this.endPage = el; }}>
+          </div>
       </div>
     );
   }
