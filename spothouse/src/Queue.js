@@ -6,14 +6,14 @@ const Queue = props => {
       <h2>Queue</h2>
       <br></br>
       {props.songQueue[0] && (
-      <table id="table" class="table" width="30%" border="2px" table-layour="fixed">
+      <table id="table" className="table" border="1px" table-layour="fixed">
 
       <tbody>
         
         {props.songQueue.map(item => 
           <tr>
             <td align="center"><img src={item.artwork} width="50" align="center"/></td>
-            <td align="center" style={{fontSize: 15}}>{item.name}</td>
+            <td align="center" style={{fontSize: 15, padding: 10}}>{item.name}</td>
           </tr>
             )
           }
