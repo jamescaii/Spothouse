@@ -78,10 +78,9 @@ class SpotHouse extends Component {
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
       this.updateBackendQueue();
-      console.log(this.state)
       if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
         if (this.state.currentQueue.length > 0)
-          this.updateQueue(this.state.token);
+          this.addToSpotifyQueue(this.state.token);
       }
     }
   }
@@ -126,7 +125,7 @@ class SpotHouse extends Component {
           });
   }
 
-  updateQueue = (token) => {
+  addToSpotifyQueue = (token) => {
     let toAdd = encodeURIComponent(this.state.currentQueue[0].uri.trim()) 
     // Make a call using the token
     $.ajax({
@@ -137,7 +136,7 @@ class SpotHouse extends Component {
       },
       success: data => {
         this.state.currentQueue.shift();
-        this.state.added = true
+        this.setState({added: true})
       }
     });
   }
@@ -147,8 +146,8 @@ class SpotHouse extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.count !== this.state.count)
       this.scrollToBottom();
-    if (prevState.item.name != this.state.item.name)
-      this.state.added = false
+    if (prevState.item.name !== this.state.item.name)
+      this.setState({added: false})
   }
   getSearch(token, searchQuery) {
     // parse searchQuery
