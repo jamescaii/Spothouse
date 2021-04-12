@@ -66,7 +66,7 @@ class SpotHouse extends Component {
     }
 
     // set interval for polling every .5 seconds
-    this.interval = setInterval(() => this.tick(), 500);
+    this.interval = setInterval(() => this.tick(), 1000);
   }
 
   componentWillUnmount() {
@@ -75,15 +75,56 @@ class SpotHouse extends Component {
   }
 
   tick() {
-    console.log(this.state.currentQueue)
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
+      this.updateBackendQueue();
       if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
         if (this.state.currentQueue.length > 0)
           this.updateQueue(this.state.token);
       }
     }
   }
+  
+  updateBackendQueue = () => {
+    let current = []
+    let orderedList = []
+    let newQueue = []
+    for (let i = 0; i < this.state.currentQueue.length; i++) {
+        let name = this.state.currentQueue[i].name
+        current.push(name)
+    }
+      const toSend = {
+          songs: current
+      }
+      let config = {
+          headers: {
+              "Content-Type": "application/json",
+              'Access-Control-Allow-Origin': '*',
+          }
+      }
+      axios.post(
+          "http://localhost:4567/queue",
+          toSend,
+          config
+      )
+          .then(response => {
+              // console.log("THIS IS THE BACKEND QUEUE", response)
+              orderedList = response.data["songList"]
+              for (let i = 0; i < orderedList.length; i++) {
+                  let songName = orderedList[i].name
+                  for (let j = 0; j < this.state.currentQueue.length; j++) {
+                      if (this.state.currentQueue[j].name === songName) {
+                          newQueue.push(this.state.currentQueue[j])
+                      }
+                  }
+              }
+              this.setState({currentQueue: newQueue})
+          })
+          .catch(function (error) {
+              console.log(error);
+          });
+  }
+
   updateQueue = (token) => {
     let toAdd = encodeURIComponent(this.state.currentQueue[0].uri.trim()) 
     // Make a call using the token
