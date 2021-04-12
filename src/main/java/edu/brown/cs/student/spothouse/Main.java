@@ -2,6 +2,7 @@ package edu.brown.cs.student.spothouse;
 
 import java.io.*;
 
+import java.lang.module.Configuration;
 import java.util.*;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import spark.Response;
 import spark.Route;
 import spark.Spark;
 import org.json.JSONObject;
+import spark.template.freemarker.FreeMarkerEngine;
 
 /**
  * The Main class of our project. This is where execution begins.
@@ -72,8 +74,16 @@ public final class Main {
     }
   }
 
+  static int getHerokuAssignedPort() {
+    ProcessBuilder processBuilder = new ProcessBuilder();
+    if (processBuilder.environment().get("PORT") != null) {
+      return Integer.parseInt(processBuilder.environment().get("PORT"));
+    }
+    return DEFAULT_PORT;
+  }
+
   private void runSparkServer(int port) {
-    Spark.port(port);
+    Spark.port(getHerokuAssignedPort());
     Spark.externalStaticFileLocation("src/main/resources/static");
 
     Spark.options("/*", (request, response) -> {
@@ -95,6 +105,8 @@ public final class Main {
     Spark.exception(Exception.class, new ExceptionPrinter());
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
+    Spark.get("/:lobbyID", new LobbyGUI());
+
   }
 
   /**
