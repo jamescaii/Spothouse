@@ -76,8 +76,8 @@ class SpotHouse extends Component {
   tick() {
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
-      console.log(this.state.progress_ms/this.state.item.duration_ms)
-      if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
+      console.log(!this.state.is_playing)
+      if ((this.state.progress_ms/this.state.item.duration_ms > .95 || !this.state.is_playing) & !this.state.added) {
         if (this.state.currentQueue.length > 0)
           this.updateQueue(this.state.token);
       }
@@ -268,7 +268,7 @@ class SpotHouse extends Component {
           )}    
         </header>
         <br></br>
-          {this.state.token && !this.state.no_data && (
+          {this.state.token && !this.state.no_data && this.state.item && (
             <>
             <Player
               item={this.state.item}
