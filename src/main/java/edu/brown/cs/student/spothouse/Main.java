@@ -1,16 +1,15 @@
 package edu.brown.cs.student.spothouse;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.io.*;
+
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.json.JSONArray;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
@@ -25,6 +24,8 @@ public final class Main {
 
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
+  private static List<Song2> songs;
+  private static Set<String> songSet = new HashSet<>();
 
   /**
    * The initial method called when execution begins.
@@ -45,26 +46,31 @@ public final class Main {
   }
 
   private void run() {
+    // Parse command line arguments
     OptionParser parser = new OptionParser();
     parser.accepts("gui");
-    parser.accepts("traffic");
     parser.accepts("port").withRequiredArg().ofType(Integer.class)
-        .defaultsTo(DEFAULT_PORT);
-    OptionSet options = null;
-    try {
-      options = parser.parse(args);
-    } catch (Exception e) {
-      System.out.println("ERROR: " + e);
-    }
-    if (options == null) {
-      return;
-    }
+            .defaultsTo(DEFAULT_PORT);
+    OptionSet options = parser.parse(args);
 
     if (options.has("gui")) {
       runSparkServer((int) options.valueOf("port"));
     }
+    InputStreamReader stream = new InputStreamReader(System.in);
+    BufferedReader reader = new BufferedReader(stream);
+    String input;
+    songs = new ArrayList<>();
+    try {
+      while (true) {
+        input = reader.readLine();
+        if (input == null) {
+          break;
+        }
+      }
+    } catch (IOException e) {
+      System.out.println("FAILED");
+    }
   }
-
 
   private void runSparkServer(int port) {
     Spark.port(port);
@@ -87,9 +93,9 @@ public final class Main {
 
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
-    Spark.post("/route", new RouteHandler());
+    Spark.post("/queue", new QueueHandler());
+    Spark.post("/rankings", new RankingHandler());
   }
-
 
   /**
    * Display an error page when an exception occurs in the server.
@@ -110,55 +116,54 @@ public final class Main {
     }
   }
 
-
-  /**
-   * RouteHandler.
-   * Handles requests made for a route.
-   */
-  private static class RouteHandler implements Route {
-    @Override
+  private static class QueueHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
-
-    //   JSONObject data = new JSONObject(request.body());
-    //   String sLat = data.getString("srclat");
-    //   String sLon = data.getString("srclong");
-    //   String dLat = data.getString("destlat");
-    //   String dLon = data.getString("destlong");
-    //   M.routeFinder(new String[]{"route", sLat, sLon, dLat, dLon});
-    //   List<Edge<MapNode>> route = M.getRouteTest();
-
-    //   // construct the string to return
-    //   StringBuilder toRet = new StringBuilder();
-    //   StringBuilder toRet2 = new StringBuilder();
-    //   double distance = 0;
-
-    //   for (Edge<MapNode> e : route) {
-    //     toRet.append(e.toString()).append("\n");
-    //     // build the map of exact nodes and dests
-    //     if (toRet.toString().startsWith("ERROR")
-    //         || toRet.toString().startsWith("Sorry")) {
-    //       toRet2.setLength(0);
-    //       break;
-    //     }
-    //     // cast to a MapWay for usage
-    //     MapWay z = (MapWay) e;
-    //     toRet2.append(z.getSourceLat()).append(",").append(z.getSourceLon()).append(",");
-    //     toRet2.append(z.getDestLat()).append(",").append(z.getDestLon());
-    //     toRet2.append("\n");
-    //     // calculate the route distance
-    //     distance += z.getWeight();
-    //   }
-
-    //   // return the variables
-      Map<String, Object> variables;
-      variables = ImmutableMap.of("route", "hello");
-    //   } else {
-    //     variables = ImmutableMap.of("route", M.getErrorMSG(),
-    //         "routeMap", toRet2.toString(), "dist", String.valueOf(distance));
-    //   }
+      JSONObject data = new JSONObject((request.body()));
+      JSONArray songsJSON = data.getJSONArray("songs");
+      List<String> songList = new ArrayList<>();
+      Set<String> frontSongSet = new HashSet<>();
+      for (int i = 0; i < songsJSON.length(); i++) {
+        songList.add(songsJSON.getString(i));
+        frontSongSet.add(songsJSON.getString(i));
+      }
+      Set<String> removedSongs = new HashSet<>(songSet);
+      removedSongs.removeAll(frontSongSet);
+      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
+      newAddedSongs.removeAll(songSet);
+      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
+      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
+      intersectionSongs.retainAll(songSet);
+      tempSongSet.addAll(intersectionSongs);
+      songSet = tempSongSet;
+      List<Song2> nonRemovedList = new ArrayList<>();
+      for (Song2 song: songs) {
+        if (!removedSongs.contains(song.getName())) {
+          nonRemovedList.add(song);
+        }
+      }
+      songs = nonRemovedList;
+      for (String s: newAddedSongs) {
+        Song2 newSong = new Song2(s, "NA", 0);
+        songs.add(newSong);
+      }
+      Map<String, Object> variables = ImmutableMap.of("songList", songs);
       return GSON.toJson(variables);
     }
   }
 
-
+  private static class RankingHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String toUpdate = data.getString("increased");
+      System.out.println(toUpdate);
+      for (Song2 s: songs) {
+        if (s.getName().equals(toUpdate)) {
+          s.addVote(1);
+        }
+      }
+      Collections.sort(songs);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs, "name", toUpdate);
+      return GSON.toJson(variables);
+    }
+  }
 }

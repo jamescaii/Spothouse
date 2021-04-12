@@ -7,6 +7,7 @@ import hash from "./hash";
 import "./App.css";
 import TextBox from './TextBox';
 import Player from './Player';
+import axios from "axios";
 
 
 class SpotHouse extends Component {
@@ -74,9 +75,9 @@ class SpotHouse extends Component {
   }
 
   tick() {
+    console.log(this.state.currentQueue)
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
-      console.log(this.state.progress_ms/this.state.item.duration_ms)
       if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
         if (this.state.currentQueue.length > 0)
           this.updateQueue(this.state.token);
@@ -268,7 +269,7 @@ class SpotHouse extends Component {
           )}    
         </header>
         <br></br>
-          {this.state.token && !this.state.no_data && (
+        {this.state.token && !this.state.no_data && this.state.item && (
             <>
             <Player
               item={this.state.item}
