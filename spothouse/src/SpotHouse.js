@@ -66,7 +66,7 @@ class SpotHouse extends Component {
     }
 
     // set interval for polling every .5 seconds
-    this.interval = setInterval(() => this.tick(), 1000);
+    this.interval = setInterval(() => this.tick(), 500);
   }
 
   componentWillUnmount() {
@@ -78,6 +78,7 @@ class SpotHouse extends Component {
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
       this.updateBackendQueue();
+      console.log(this.state)
       if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
         if (this.state.currentQueue.length > 0)
           this.updateQueue(this.state.token);
