@@ -2,14 +2,6 @@ import React, {useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 
 const Queue = props => {
-    let currentQueue = []
-    let orderedList = []
-    for (let i = 0; i < props.songQueue.length; i++) {
-        let name = props.songQueue[i].name
-        currentQueue.push(name)
-    }
-    let tempQueue = props.songQueue
-    const newQueue = useRef([])
 
     const updateSongValue = (props) => {
         let songName = props.target.className
@@ -34,7 +26,6 @@ const Queue = props => {
             });
     }
 
-    // console.log("Current Queue", currentQueue)
     return (
         <div className="App"><center>
             <h2>Queue</h2>
