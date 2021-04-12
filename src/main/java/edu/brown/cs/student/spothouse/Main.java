@@ -72,6 +72,14 @@ public final class Main {
     }
   }
 
+  static int getHerokuAssignedPort() {
+    ProcessBuilder processBuilder = new ProcessBuilder();
+    if (processBuilder.environment().get("PORT") != null) {
+      return Integer.parseInt(processBuilder.environment().get("PORT"));
+    }
+    return DEFAULT_PORT;
+  }
+
   private void runSparkServer(int port) {
     Spark.port(port);
     Spark.externalStaticFileLocation("src/main/resources/static");
@@ -95,6 +103,8 @@ public final class Main {
     Spark.exception(Exception.class, new ExceptionPrinter());
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
+    Spark.get("/:lobbyID", new LobbyGUI());
+
   }
 
   /**
