@@ -38,7 +38,8 @@ class SpotHouse extends Component {
       clickedSongURI: "",
       currentQueue: [],
       topTracks: [],
-      count: 0
+      count: 0,
+      added: false
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -63,7 +64,7 @@ class SpotHouse extends Component {
       this.getCurrentlyPlaying(_token);
     }
 
-    // set interval for polling every 5 seconds
+    // set interval for polling every .5 seconds
     this.interval = setInterval(() => this.tick(), 500);
   }
 
@@ -75,7 +76,27 @@ class SpotHouse extends Component {
   tick() {
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
+      console.log(this.state.progress_ms/this.state.item.duration_ms)
+      if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
+        if (this.state.currentQueue.length > 0)
+          this.updateQueue(this.state.token);
+      }
     }
+  }
+  updateQueue = (token) => {
+    let toAdd = encodeURIComponent(this.state.currentQueue[0].uri.trim()) 
+    // Make a call using the token
+    $.ajax({
+      url: "https://api.spotify.com/v1/me/player/queue?uri=" + toAdd,
+      type: "POST",
+      beforeSend: xhr => {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+      },
+      success: data => {
+        this.state.currentQueue.shift();
+        this.state.added = true
+      }
+    });
   }
   scrollToBottom = () => {
     this.endPage.scrollIntoView({ behavior: "smooth" });
@@ -83,6 +104,8 @@ class SpotHouse extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.count !== this.state.count)
       this.scrollToBottom();
+    if (prevState.item.name != this.state.item.name)
+      this.state.added = false
   }
   getSearch(token, searchQuery) {
     // parse searchQuery
@@ -98,7 +121,7 @@ class SpotHouse extends Component {
         //console.log(data)
         // Checks if the data is not empty
         if(data) {
-          console.log(data.tracks.items)
+          console.log(data)
           this.setState({
             searchResults: data.tracks.items.map((item) => ({
               name: item.name,
