@@ -55,9 +55,7 @@ public final class Main {
             .defaultsTo(DEFAULT_PORT);
     OptionSet options = parser.parse(args);
 
-    if (options.has("gui")) {
-      runSparkServer((int) options.valueOf("port"));
-    }
+    runSparkServer((int) options.valueOf("port"));
     InputStreamReader stream = new InputStreamReader(System.in);
     BufferedReader reader = new BufferedReader(stream);
     String input;
