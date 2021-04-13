@@ -10,11 +10,10 @@ public class LobbyGUI implements TemplateViewRoute, Route {
     @Override
     public ModelAndView handle(Request request, Response response) throws Exception {
         String id = request.params(":lobbyID");
-        if (id.isEmpty()) {
+        if (id.isEmpty() || id.equals(" ")) {
             Random rand = new Random();
             id = Integer.toString(rand.nextInt(9999));
         }
-        System.out.println(id);
         Map<String, String> lobby = new HashMap<>();
         lobby.put("content", id);
         return new ModelAndView(lobby, "index.ftl");
