@@ -103,7 +103,7 @@ class SpotHouse extends Component {
           }
       }
       axios.post(
-          "http://localhost:4567/queue",
+          "/queue",
           toSend,
           config
       )
@@ -136,7 +136,7 @@ class SpotHouse extends Component {
       },
       success: data => {
         this.state.currentQueue.shift();
-        this.state.added = true
+        this.setState({added: true})
       }
     });
   }
@@ -146,8 +146,8 @@ class SpotHouse extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.count !== this.state.count)
       this.scrollToBottom();
-    if (prevState.item.name != this.state.item.name)
-      this.state.added = false
+    if (prevState.item.name !== this.state.item.name)
+      this.setState({added: false})
   }
   getSearch(token, searchQuery) {
     // parse searchQuery

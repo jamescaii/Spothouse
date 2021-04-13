@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -cp target/classes:target/dependency/* C:\Users\Richard Durkee\Intellij\term-project-jcai29-jchoi8-mli103-rdurkee
+web: java $JAVA_OPTS -cp target/classes:target/dependency/* edu.brown.cs.student.spothouse.Main

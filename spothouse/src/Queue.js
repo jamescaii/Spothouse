@@ -31,7 +31,7 @@ const Queue = props => {
             }
         }
         axios.post(
-            "http://localhost:4567/rankings",
+            "/rankings",
             toSend,
             config
         )
