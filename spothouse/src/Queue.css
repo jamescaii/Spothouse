@@ -1,0 +1,10 @@
+.vote {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+}
+
+
+.vote.on {
+    color: #f48024
+}

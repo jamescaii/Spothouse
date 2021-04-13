@@ -2,7 +2,6 @@ package edu.brown.cs.student.spothouse;
 
 import java.io.*;
 
-import java.lang.module.Configuration;
 import java.util.*;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import spark.Response;
 import spark.Route;
 import spark.Spark;
 import org.json.JSONObject;
-import spark.template.freemarker.FreeMarkerEngine;
 
 /**
  * The Main class of our project. This is where execution begins.
@@ -106,7 +104,6 @@ public final class Main {
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
     Spark.get("/:lobbyID", new LobbyGUI());
-
   }
 
   /**
