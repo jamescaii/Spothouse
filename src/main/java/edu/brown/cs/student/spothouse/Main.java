@@ -2,7 +2,7 @@ package edu.brown.cs.student.spothouse;
 
 import java.io.*;
 
-import java.lang.module.Configuration;
+import freemarker.template.Configuration;
 import java.util.*;
 import java.util.List;
 
@@ -80,9 +80,21 @@ public final class Main {
     return DEFAULT_PORT;
   }
 
+  private static FreeMarkerEngine createEngine() {
+    Configuration config = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+    File templates = new File("src/main/resources/spark/template/freemarker");
+    try {
+      config.setDirectoryForTemplateLoading(templates);
+    } catch (IOException ioe) {
+      System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
+      System.exit(1);
+    }
+    return new FreeMarkerEngine(config);
+  }
+
   private void runSparkServer(int port) {
     Spark.port(getHerokuAssignedPort());
-    Spark.externalStaticFileLocation("src/main/resources/static");
+    Spark.externalStaticFileLocation("src/main/resources");
 
     Spark.options("/*", (request, response) -> {
       String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -101,9 +113,10 @@ public final class Main {
 
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
+    FreeMarkerEngine freeMarker = createEngine();
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
-    Spark.get("/:lobbyID", new LobbyGUI());
+    Spark.get("/:lobbyID", new LobbyGUI(), freeMarker);
 
   }
 

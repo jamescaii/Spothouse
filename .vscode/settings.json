@@ -2,5 +2,5 @@
     "java.checkstyle.configuration": "${workspaceFolder}\\config\\cs32_checks.xml",
     "java.checkstyle.version": "8.40",
     "git.ignoreLimitWarning": true,
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "automatic"
 }
