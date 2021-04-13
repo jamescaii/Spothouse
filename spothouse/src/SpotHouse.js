@@ -103,7 +103,7 @@ class SpotHouse extends Component {
           }
       }
       axios.post(
-          "http://localhost:4567/queue",
+          "/queue",
           toSend,
           config
       )
