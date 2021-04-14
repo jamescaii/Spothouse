@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+export const conn = new WebSocket("https://spothouse-app.herokuapp.com/callback#");
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

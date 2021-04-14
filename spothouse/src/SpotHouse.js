@@ -9,7 +9,6 @@ import TextBox from './TextBox';
 import Player from './Player';
 import axios from "axios";
 
-
 class SpotHouse extends Component {
   constructor() {
     super();
@@ -192,8 +191,8 @@ class SpotHouse extends Component {
         });
       }
     });
-
   }
+
   getCurrentlyPlaying(token) {
     // Make a call using the token
     $.ajax({

@@ -151,31 +151,63 @@ public final class Main {
 
   private static class QueueHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
+//      JSONObject data = new JSONObject((request.body()));
+//      JSONArray songsJSON = data.getJSONArray("songs");
+//      JSONArray requestersJSON = data.getJSONArray("requesters");
+//      List<String> songList = new ArrayList<>();
+//      List<String> requesterList = new ArrayList<>();
+//      Set<String> frontSongSet = new HashSet<>();
+//
+//      for (int i = 0; i < songsJSON.length(); i++) {
+//        songList.add(songsJSON.getString(i));
+//        frontSongSet.add(songsJSON.getString(i));
+//      }
+//      Set<String> removedSongs = new HashSet<>(songSet);
+//      removedSongs.removeAll(frontSongSet);
+//
+//      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
+//
+//      for (int i = 0; i < newAddedSongs.size(); i++) {
+//        if (songSet.contains(newAddedSongs.get(i))) {
+//          newAddedSongs.remove();
+//          requesterList.removeAtIndex(i);
+//        }
+//      }
+//      newAddedSongs.removeAll(songSet);
+//
+//
+//      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
+//      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
+//      intersectionSongs.retainAll(songSet);
+//      tempSongSet.addAll(intersectionSongs);
+//      songSet = tempSongSet;
+//      List<Song> nonRemovedList = new ArrayList<>();
+//      for (Song song: songs) {
+//        if (!removedSongs.contains(song.getName())) {
+//          nonRemovedList.add(song);
+//        }
+//      }
+//
+//      songs = nonRemovedList;
+//      for (String s: newAddedSongs) {
+//
+//        Song newSong = new Song(s, new Guest("NA", 0));
+//        songs.add(newSong);
+//      }
+//      Map<String, Object> variables = ImmutableMap.of("songList", songs);
+//      return GSON.toJson(variables);
       JSONObject data = new JSONObject((request.body()));
       JSONArray songsJSON = data.getJSONArray("songs");
-      JSONArray requestersJSON = data.getJSONArray("requesters");
       List<String> songList = new ArrayList<>();
-      List<String> requesterList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
-
       for (int i = 0; i < songsJSON.length(); i++) {
         songList.add(songsJSON.getString(i));
         frontSongSet.add(songsJSON.getString(i));
       }
       Set<String> removedSongs = new HashSet<>(songSet);
       removedSongs.removeAll(frontSongSet);
-
       Set<String> newAddedSongs = new HashSet<>(frontSongSet);
-
-      for (int i = 0; i < newAddedSongs.size(); i++) {
-        if (songSet.contains(newAddedSongs.get(i))) {
-          newAddedSongs.remove();
-          requesterList.removeAtIndex(i);
-        }
-      }
       newAddedSongs.removeAll(songSet);
-
-
       Set<String> tempSongSet = new HashSet<>(newAddedSongs);
       Set<String> intersectionSongs = new HashSet<>(frontSongSet);
       intersectionSongs.retainAll(songSet);
@@ -187,11 +219,9 @@ public final class Main {
           nonRemovedList.add(song);
         }
       }
-
       songs = nonRemovedList;
       for (String s: newAddedSongs) {
-
-        Song newSong = new Song(s, "NA");
+        Song newSong = new Song(s, new Guest("NA", 0));
         songs.add(newSong);
       }
       Map<String, Object> variables = ImmutableMap.of("songList", songs);
