@@ -31,6 +31,10 @@ public class Lobby<T extends Votable> {
         this.webSocket.setLobby(this);
     }
 
+    public LobbyWebSocket<T> getLobbyWebSocket() {
+        return webSocket;
+    }
+
     /**
      * gets all of the users in the Lobby
      * @return - a List of Users that includes the host and every guest in the lobby

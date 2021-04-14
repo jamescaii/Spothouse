@@ -11,8 +11,10 @@ import java.util.Random;
 public class LobbyGUI implements TemplateViewRoute, Route {
     @Override
     public ModelAndView handle(Request request, Response response) throws Exception {
-        int lobbyID = Integer.parseInt(request.splat()[0]);
+        System.out.println(request.params(":LobbyID"));
+        int lobbyID = Integer.parseInt(request.params(":LobbyID"));
         if (Main.getLobbies().get(lobbyID) != null) {
+//            Main.getLobbies().get(lobbyID).getLobbyWebSocket().;
             Map<String, Object> variables = ImmutableMap.<String, Object>builder().put("lobbyID", lobbyID).build();
             request.session().attribute("lobbyID", lobbyID);
             return new ModelAndView(variables, "index.ftl");

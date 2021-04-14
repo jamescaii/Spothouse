@@ -46,8 +46,6 @@ class SpotHouse extends Component {
       added: false
     };
 
-    this.setup_lobby();
-    this.setup_websocket();
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
     this.tick = this.tick.bind(this);
   }
@@ -68,6 +66,7 @@ class SpotHouse extends Component {
       });
       this.getTopTracks(_token);
       this.getCurrentlyPlaying(_token);
+      this.setup_lobby();
     }
 
     // set interval for polling every .5 seconds
@@ -105,24 +104,29 @@ class SpotHouse extends Component {
         'Access-Control-Allow-Origin': '*',
       }
     }
-    axios.post(
-        "/setupGUI",
+    axios.get(
+        "http://localhost:4567/setup",
         toSend,
         config
     )
         .then(response => {
           // console.log("THIS IS THE BACKEND QUEUE", response)
-          this.setState({lobbyID: response.data["lobbyID"]})
+          this.setState({lobbyID: response.data["lobbyID"]});
+          console.log(this.state.lobbyID);
+          this.setup_websocket(this.state.lobbyID);
         })
         .catch(function (error) {
           console.log(error);
         });
   }
 
-  setup_websocket = () => {
+  setup_websocket = (id) => {
     // TODO create WebSocket listening at and sending to ws://localhost:4567/message
     //const conn = new WebSocket("https://spothouse-app.herokuapp.com/callback#");
-    const conn = new WebSocket("ws://localhost:4567/0");
+    console.log(id);
+    const lobbyURL = "ws://localhost:4567/lobby/".concat(id.toString())
+    console.log(lobbyURL);
+    const conn = new WebSocket(lobbyURL);
 
     // TODO set up client response to messages received from server
     conn.onmessage = msg => {
@@ -179,7 +183,7 @@ class SpotHouse extends Component {
           }
       }
       axios.post(
-          "/queue",
+          "http://localhost:4567/queue",
           toSend,
           config
       )

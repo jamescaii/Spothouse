@@ -7,7 +7,6 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 
 public class SetupLobby implements Route {

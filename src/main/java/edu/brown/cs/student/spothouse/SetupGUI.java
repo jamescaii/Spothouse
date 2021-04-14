@@ -15,8 +15,12 @@ public class SetupGUI implements Route {
         int lobbyID = 1;
         QueryParamsMap vars = request.queryMap();
 
-        Lobby<Song> lobby = new Lobby<>(new Host(vars.value("host"), 0),
-                Integer.parseInt(vars.value("maxCapacity")));
+//        Lobby<Song> lobby = new Lobby<>(new Host(vars.value("host"), 0),
+//                Integer.parseInt(vars.value("maxCapacity")));
+//        Main.getLobbies().put(lobbyID, lobby);
+
+        Lobby<Song> lobby = new Lobby<>(new Host("Richard", 0),
+                10);
         Main.getLobbies().put(lobbyID, lobby);
         Map<String, Object> variables = ImmutableMap.<String, Object>builder().put("lobbyID", lobbyID).build();
         return new Gson().toJson(variables);

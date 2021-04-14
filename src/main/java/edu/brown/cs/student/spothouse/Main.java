@@ -95,7 +95,7 @@ public final class Main {
   }
 
   private void runSparkServer(int port) {
-    Spark.webSocket("/0", LobbyWebSocket.class);
+    Spark.webSocket("/lobby/1", LobbyWebSocket.class);
 
     Spark.port(getHerokuAssignedPort());
 
@@ -106,7 +106,7 @@ public final class Main {
 
     Spark.externalStaticFileLocation("src/main/resources");
 
-    Spark.webSocket("/0", LobbyWebSocket.class);
+    Spark.webSocket("/lobby/1", LobbyWebSocket.class);
 
     Spark.options("/*", (request, response) -> {
       String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -128,11 +128,10 @@ public final class Main {
     FreeMarkerEngine freeMarker = createEngine();
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
-    Spark.post("/setup", new SetupGUI());
+    Spark.get("/setup", new SetupGUI());
     Spark.post("/setupLobby", new SetupLobby());
     //Spark.get("/", new LoginGUI());
-    Spark.get("/*", new LobbyGUI(), freeMarker);
-
+    Spark.get("/lobby/:lobbyID", new LobbyGUI(), freeMarker);
   }
 
   public static Map<Integer, Lobby<Song>> getLobbies() {
