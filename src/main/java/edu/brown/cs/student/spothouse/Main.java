@@ -95,7 +95,7 @@ public final class Main {
   }
 
   private void runSparkServer(int port) {
-    Spark.webSocket("/lobby/1", LobbyWebSocket.class);
+    Spark.webSocket("/localhost:4567/lobby/1", LobbyWebSocket.class);
 
     Spark.port(getHerokuAssignedPort());
 
@@ -106,7 +106,7 @@ public final class Main {
 
     Spark.externalStaticFileLocation("src/main/resources");
 
-    Spark.webSocket("/lobby/1", LobbyWebSocket.class);
+    Spark.webSocket("/localhost:4567/lobby/1", LobbyWebSocket.class);
 
     Spark.options("/*", (request, response) -> {
       String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
