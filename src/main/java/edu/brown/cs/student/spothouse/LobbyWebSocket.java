@@ -18,13 +18,17 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 public class LobbyWebSocket<T extends Votable> {
     private static final Gson GSON = new Gson();
     private static final Queue<Session> sessions = new ConcurrentLinkedQueue<>();
-    private final int maxUsers;
+    private final int maxUsers = 5;
     private static int nextId = 0;
-    private final Lobby<T> lobby;
+    private Lobby<T> lobby;
 
-    public LobbyWebSocket(Lobby<T> lobby, int maxUsers) {
+//    public LobbyWebSocket(Lobby<T> lobby, int maxUsers) {
+//        this.lobby = lobby;
+//        this.maxUsers = maxUsers;
+//    }
+
+    public void setLobby(Lobby<T> lobby) {
         this.lobby = lobby;
-        this.maxUsers = maxUsers;
     }
 
     private static enum MESSAGE_TYPE {

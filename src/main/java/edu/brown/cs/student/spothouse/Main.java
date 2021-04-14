@@ -95,8 +95,18 @@ public final class Main {
   }
 
   private void runSparkServer(int port) {
+    Spark.webSocket("/0", LobbyWebSocket.class);
+
     Spark.port(getHerokuAssignedPort());
+
+    String localhost = "127.0.0.1";
+    Spark.ipAddress(localhost);
+
+    //Spark.port(port);
+
     Spark.externalStaticFileLocation("src/main/resources");
+
+    Spark.webSocket("/0", LobbyWebSocket.class);
 
     Spark.options("/*", (request, response) -> {
       String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -116,7 +126,6 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
-    Spark.webSocket("/message", WebSocket.class);
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupGUI());

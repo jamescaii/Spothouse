@@ -27,7 +27,8 @@ public class Lobby<T extends Votable> {
         this.host = host;
         this.maxUsers = maxUsers;
         this.users.add(host);
-        this.webSocket = new LobbyWebSocket<>(this, maxUsers);
+        this.webSocket = new LobbyWebSocket<>();
+        this.webSocket.setLobby(this);
     }
 
     /**

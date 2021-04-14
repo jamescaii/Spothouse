@@ -36,6 +36,9 @@ class SpotHouse extends Component {
         }
       ],
       clickedSongURI: "",
+      conn: null,
+      lobbyID: -1,
+      myID: -1,
       currentQueue: [],
       currentQueueRequesters: [],
       topTracks: [],
@@ -43,6 +46,8 @@ class SpotHouse extends Component {
       added: false
     };
 
+    this.setup_lobby();
+    this.setup_websocket();
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
     this.tick = this.tick.bind(this);
   }
@@ -83,6 +88,71 @@ class SpotHouse extends Component {
           this.addToSpotifyQueue(this.state.token);
       }
     }
+  }
+
+  MESSAGE_TYPE = {
+    CONNECT: 0,
+    UPDATE: 1,
+    SEND: 2
+  };
+
+  setup_lobby = () => {
+    const toSend = {
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "/setupGUI",
+        toSend,
+        config
+    )
+        .then(response => {
+          // console.log("THIS IS THE BACKEND QUEUE", response)
+          this.setState({lobbyID: response.data["lobbyID"]})
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
+  setup_websocket = () => {
+    // TODO create WebSocket listening at and sending to ws://localhost:4567/message
+    //const conn = new WebSocket("https://spothouse-app.herokuapp.com/callback#");
+    const conn = new WebSocket("ws://localhost:4567/0");
+
+    // TODO set up client response to messages received from server
+    conn.onmessage = msg => {
+      const data = JSON.parse(msg.data);
+      switch (data.type) {
+          // default can go anywhere in the switch order ^_^
+        default:
+          console.log('Unknown message type!', data.type);
+          break;
+        case this.MESSAGE_TYPE.CONNECT:
+          // We get this message when the server recognizes that we (the client) have connected and sends back our unique id
+          this.myId = data.getProperty("id");
+          break;
+        case this.MESSAGE_TYPE.UPDATE:
+          // We get this message when some client broadcast a message to all clients
+          // TODO append to the message board unordered list (in chat.ftl) the received message
+          this.currentQueue.push(data.getProperty("songID"));
+          break;
+      }
+    };
+  }
+
+// When a user hits the Send! button this method gets called (chat.ftl)
+  sendRequest = () => {
+    // TODO create a new message of type SEND
+    let req = {
+      uri: this.clickedSongURI
+    }
+    // TODO use conn to send the message to the server
+    this.conn.send(req);
   }
   
   updateBackendQueue = () => {
@@ -262,7 +332,7 @@ class SpotHouse extends Component {
       artwork: clickedArt,
       uri: clickedURI});
     await this.setState({currentQueue: joined})
-                            
+    this.sendRequest();
     this.setState({count: this.state.count + 1})
   }
 
