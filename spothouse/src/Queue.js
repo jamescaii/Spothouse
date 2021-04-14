@@ -3,24 +3,22 @@ import axios from 'axios';
 import './Queue.css';
 
 const Queue = props => {
-    const changeColor = () => {
-        console.log("changed")
-        for (const btn of document.querySelectorAll('.vote')) {
-            btn.addEventListener('click', event => {
-                event.currentTarget.classList.toggle('on');
-            });
-        }
-    }
+    const clickedMap = useRef([])
 
-    const updateSongValue = (props) => {
-        console.log("changed")
-        for (const btn of document.querySelectorAll('.vote')) {
-            btn.addEventListener('click', event => {
-                event.currentTarget.classList.toggle('on');
-            });
+    const handleUpvote = async (event) => {
+        let songName = event.target.id
+        let found = false;
+        for (let i = 0; i < clickedMap.current.length; i++) {
+            if (clickedMap.current[i].name === songName) {
+                console.log(clickedMap.current[i].name)
+                clickedMap.current[i].boolean = !clickedMap.current[i].boolean
+                found = true
+            }
         }
-        let songName = props.target.id
-        console.log(songName)
+        console.log(clickedMap.current)
+        if (!found) {
+            clickedMap.current.push({name: songName, boolean: true})
+        }
         const toSend = {
             increased: songName
         }
@@ -30,8 +28,8 @@ const Queue = props => {
                 'Access-Control-Allow-Origin': '*',
             }
         }
-        axios.post(
-            "/rankings",
+        await axios.post(
+            "http://localhost:4567/rankings",
             toSend,
             config
         )
@@ -40,6 +38,63 @@ const Queue = props => {
             .catch(function (error) {
                 console.log(error);
             });
+
+    }
+    
+    const handleDownvote = async (event) => {
+        let songName = event.target.id
+        let found = false;
+        for (let i = 0; i < clickedMap.current.length; i++) {
+            if (clickedMap.current[i].name === songName) {
+                clickedMap.current[i].boolean = !clickedMap.current[i].boolean
+                found = true;
+            }
+        }
+        if (!found) {
+            clickedMap.current.push({name: songName, boolean: true})
+        }
+        const toSend = {
+            increased: songName
+        }
+        let config = {
+            headers: {
+                "Content-Type": "application/json",
+                'Access-Control-Allow-Origin': '*',
+            }
+        }
+        await axios.post(
+            "http://localhost:4567/rankings",
+            toSend,
+            config
+        )
+            .then(response => {
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+    }
+    
+    function ifClicked(songName) {        
+        for (let i = 0; i < clickedMap.current.length; i++) {
+            if (clickedMap.current[i].name === songName) {
+                //console.log(clickedMap.current[i].name, songName)
+                return clickedMap.current[i].boolean
+            }
+        }
+        return false
+    }
+
+    function getColor(songName) {
+        //console.log(songName)
+        if (!ifClicked(songName)) {
+            //console.log("not clicked")
+            return { fill: "#687074" }
+        }
+        else {            
+            //console.log("clicked")
+            return { fill: "#f48024" }
+        }
     }
 
     return (
@@ -52,14 +107,14 @@ const Queue = props => {
                     {props.songQueue.map(item =>
                         <tr>
                             <td align="center">
-                                <span className="vote" onClick={updateSongValue}>
+                                <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 26h32L18 10 2 26z" fill="currentColor" id={item.name}></path>
+                                    <path d="M2 26h32L18 10 2 26z" style={getColor(item.name)} id={item.name}></path>
                                   </svg>
                                 </span>
-                                <span className="vote" onClick={changeColor}>
+                                <span className="votedown" onClick={handleDownvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 10h32L18 26 2 10z" fill="currentColor"></path>
+                                    <path d="M2 10h32L18 26 2 10z" style={getColor(item.name)}></path>
                                   </svg>
                                 </span>
                             </td>

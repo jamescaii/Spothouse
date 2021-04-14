@@ -1,10 +1,18 @@
-.vote {
+.voteup {
+    display: inline-block;
+    cursor: pointer;
+    color: #687074
+}
+.votedown {
     display: inline-block;
     cursor: pointer;
     color: #687074
 }
 
 
-.vote.on {
+.voteup.on {
+    color: #f48024
+}
+.votedown.on {
     color: #f48024
 }

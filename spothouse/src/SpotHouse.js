@@ -103,7 +103,7 @@ class SpotHouse extends Component {
           }
       }
       axios.post(
-          "/queue",
+          "http://localhost:4567/queue",
           toSend,
           config
       )
@@ -251,7 +251,9 @@ class SpotHouse extends Component {
     var joined = this.state.currentQueue.concat({name: clickedName,
       artist: clickedArtist,
       artwork: clickedArt,
-      uri: clickedURI});
+      uri: clickedURI,
+      upbutton: "<span className=\"voteup\" id = {" + {clickedName} + "} onClick={handleUpvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>",
+      downbutton: "<span className=\"votedown\" id = {" + {clickedName} + "} onClick={handleDownvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>"});
     await this.setState({currentQueue: joined})
                             
     this.setState({count: this.state.count + 1})
