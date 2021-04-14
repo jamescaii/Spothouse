@@ -1,5 +1,7 @@
 package edu.brown.cs.student.spothouse;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import spark.*;
 
 import java.util.HashMap;
@@ -9,13 +11,15 @@ import java.util.Random;
 public class LobbyGUI implements TemplateViewRoute, Route {
     @Override
     public ModelAndView handle(Request request, Response response) throws Exception {
-        String id = request.params(":lobbyID");
-        if (id.isEmpty() || id.equals(" ")) {
-            Random rand = new Random();
-            id = Integer.toString(rand.nextInt(9999));
+        int lobbyID = Integer.parseInt(request.splat()[0]);
+        if (Main.getLobbies().get(lobbyID) != null) {
+            Map<String, Object> variables = ImmutableMap.<String, Object>builder().put("lobbyID", lobbyID).build();
+            request.session().attribute("lobbyID", lobbyID);
+            return new ModelAndView(variables, "index.ftl");
         }
-        Map<String, String> lobby = new HashMap<>();
-        lobby.put("content", id);
-        return new ModelAndView(lobby, "index.ftl");
+        else {
+            response.redirect("/");
+            return null;
+        }
     }
 }

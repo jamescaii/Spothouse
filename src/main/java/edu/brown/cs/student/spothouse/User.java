@@ -4,6 +4,19 @@ package edu.brown.cs.student.spothouse;
  * An interface representing a User, which includes the Host and Guest
  */
 public interface User {
+
+    /**
+     * Gets the username of the Host
+     * @return - a String representing the username of the Host
+     */
+    String getUserName();
+
+    /**
+     * Gets the ID of the Host
+     * @return - an integer representing the ID of the Host
+     */
+    int getUserID();
+
     /**
      * Sets the score of the User, which will determine their priority for selecting Votables
      * @param score - an integer representing the score of the User
@@ -68,7 +81,12 @@ public interface User {
     int getNegativeVotes();
 
     /**
-     *
+     * Updates the score of the User
      */
     void updateScore();
+
+    /**
+     * Functionality for when the User's requested song is played
+     */
+    void votablePlayed();
 }

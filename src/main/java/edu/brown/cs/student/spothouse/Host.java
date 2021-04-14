@@ -4,6 +4,9 @@ package edu.brown.cs.student.spothouse;
  * A class representing the Host of a Lobby
  */
 public class Host implements User {
+    private final String userName;
+    private final int id;
+    private boolean enFuego = false;
     private int timesVoted = 0;
     private int positiveVotes = 0;
     private int negativeVotes = 0;
@@ -16,7 +19,20 @@ public class Host implements User {
     /**
      * A constructor for the Host class
      */
-    public Host() {}
+    public Host(String userName, int id) {
+        this.userName = userName;
+        this.id = id;
+    }
+
+    @Override
+    public String getUserName() {
+        return this.userName;
+    }
+
+    @Override
+    public int getUserID() {
+        return this.id;
+    }
 
     @Override
     public void setScore(double score) {
@@ -88,5 +104,15 @@ public class Host implements User {
                 + (0.1 * songsSincePlayed)
                 + (0.1 * songsPlayed)
                 + (0.1 * songsLoved));
+    }
+
+    @Override
+    public void votablePlayed() {
+        this.songsSincePlayed = 0;
+        songsPlayed++;
+    }
+
+    public void setTopUser(Boolean bool) {
+        this.enFuego = bool;
     }
 }

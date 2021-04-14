@@ -78,4 +78,9 @@ public interface Votable {
      * Updates the Score of the Votable
      */
     void updateScore();
+
+    /**
+     * Functionality for what happens when the Votable is played
+     */
+    void played();
 }

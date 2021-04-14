@@ -1,23 +1,32 @@
 package edu.brown.cs.student.spothouse;
 
+import org.checkerframework.checker.units.qual.A;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A class representing a song to be voted on in a Lobby
  */
-public class Song implements Votable {
+public class Song implements Votable, Comparable<Song> {
     private boolean used = false;
-    User requester;
-    private List<User> positiveVotes;
-    private List<User> negativeVotes;
+    private final User requester;
+    private final String name;
+    private final List<User> positiveVotes = new ArrayList<>();
+    private final List<User> negativeVotes = new ArrayList<>();
     private double score = 0;
 
     /**
      * A Constructor for the Song class
      * @param requester - the User who requested the song
      */
-    public Song(User requester) {
+    public Song(String name, User requester) {
+        this.name = name;
         this.requester = requester;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Override
@@ -52,15 +61,15 @@ public class Song implements Votable {
 
     @Override
     public void addPositiveVote(User user) {
-        if (!positiveVotes.contains(user)) {
-            positiveVotes.add(user);
+        if (!this.positiveVotes.contains(user)) {
+            this.positiveVotes.add(user);
         }
     }
 
     @Override
     public void addNegativeVote(User user) {
-        if (!negativeVotes.contains(user)) {
-            negativeVotes.add(user);
+        if (!this.negativeVotes.contains(user)) {
+            this.negativeVotes.add(user);
         }
     }
 
@@ -99,6 +108,11 @@ public class Song implements Votable {
     }
 
     @Override
+    public void played() {
+        this.requester.votablePlayed();
+    }
+
+    @Override
     public void updateScore() {
         this.score = 0.0;
         for (User u : positiveVotes) {
@@ -108,5 +122,10 @@ public class Song implements Votable {
         for (User u : negativeVotes) {
             this.score -= u.getScore();
         }
+    }
+
+    @Override
+    public int compareTo(Song s) {
+        return s.getScore() < this.score ? -1 : 1;
     }
 }

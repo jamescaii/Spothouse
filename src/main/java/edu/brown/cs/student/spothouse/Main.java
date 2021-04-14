@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONArray;
 import spark.ExceptionHandler;
 import spark.Request;
@@ -26,7 +27,8 @@ public final class Main {
 
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static List<Song2> songs;
+  private static final Map<Integer, Lobby<Song>> lobbies = new HashMap<>();
+  private static List<Song> songs;
   private static Set<String> songSet = new HashSet<>();
 
   /**
@@ -114,10 +116,18 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
+    Spark.webSocket("/message", WebSocket.class);
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
-    Spark.get("/:lobbyID", new LobbyGUI(), freeMarker);
+    Spark.post("/setup", new SetupGUI());
+    Spark.post("/setupLobby", new SetupLobby());
+    //Spark.get("/", new LoginGUI());
+    Spark.get("/*", new LobbyGUI(), freeMarker);
 
+  }
+
+  public static Map<Integer, Lobby<Song>> getLobbies() {
+    return lobbies;
   }
 
   /**
@@ -143,30 +153,45 @@ public final class Main {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       JSONArray songsJSON = data.getJSONArray("songs");
+      JSONArray requestersJSON = data.getJSONArray("requesters");
       List<String> songList = new ArrayList<>();
+      List<String> requesterList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
+
       for (int i = 0; i < songsJSON.length(); i++) {
         songList.add(songsJSON.getString(i));
         frontSongSet.add(songsJSON.getString(i));
       }
       Set<String> removedSongs = new HashSet<>(songSet);
       removedSongs.removeAll(frontSongSet);
+
       Set<String> newAddedSongs = new HashSet<>(frontSongSet);
+
+      for (int i = 0; i < newAddedSongs.size(); i++) {
+        if (songSet.contains(newAddedSongs.get(i))) {
+          newAddedSongs.remove();
+          requesterList.removeAtIndex(i);
+        }
+      }
       newAddedSongs.removeAll(songSet);
+
+
       Set<String> tempSongSet = new HashSet<>(newAddedSongs);
       Set<String> intersectionSongs = new HashSet<>(frontSongSet);
       intersectionSongs.retainAll(songSet);
       tempSongSet.addAll(intersectionSongs);
       songSet = tempSongSet;
-      List<Song2> nonRemovedList = new ArrayList<>();
-      for (Song2 song: songs) {
+      List<Song> nonRemovedList = new ArrayList<>();
+      for (Song song: songs) {
         if (!removedSongs.contains(song.getName())) {
           nonRemovedList.add(song);
         }
       }
+
       songs = nonRemovedList;
       for (String s: newAddedSongs) {
-        Song2 newSong = new Song2(s, "NA", 0);
+
+        Song newSong = new Song(s, "NA");
         songs.add(newSong);
       }
       Map<String, Object> variables = ImmutableMap.of("songList", songs);
@@ -178,10 +203,14 @@ public final class Main {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       String toUpdate = data.getString("increased");
+      int voterID = data.getInt("voterID");
+      Lobby<Song> lobby = lobbies.get(0); //todo: change!!!
+      User voter = lobby.getUserByID(voterID);
+
       System.out.println(toUpdate);
-      for (Song2 s: songs) {
+      for (Song s: songs) {
         if (s.getName().equals(toUpdate)) {
-          s.addVote(1);
+          s.addPositiveVote(voter);
         }
       }
       Collections.sort(songs);

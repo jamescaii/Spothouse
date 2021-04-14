@@ -4,21 +4,27 @@ package edu.brown.cs.student.spothouse;
  * A class representing a Guest in the lobby, that can be signed-in or signed-out
  */
 public class Guest implements User {
-    boolean signedIn = false;
+    private boolean signedIn = false;
+    private boolean enFuego = false;
+    private final String userName;
+    private final int id;
     private int timesVoted = 0;
-    int positiveVotes = 0;
-    int negativeVotes = 0;
-    int songsRequested = 0;
-    int songsSincePlayed = 0;
-    int songsRemovedByHost = 0;
-    int songsPlayed = 0;
-    int songsLoved = 0;
-    double score = 0.5;
+    private int positiveVotes = 0;
+    private int negativeVotes = 0;
+    private int songsRequested = 0;
+    private int songsSincePlayed = 0;
+    private int songsRemovedByHost = 0;
+    private int songsPlayed = 0;
+    private int songsLoved = 0;
+    private double score = 0.5;
 
     /**
      * Constructor for the Guest class
      */
-    public Guest() {}
+    public Guest(String userName, int id) {
+        this.userName = userName;
+        this.id = id;
+    }
 
     @Override
     public void clearVotes() {
@@ -62,6 +68,16 @@ public class Guest implements User {
     }
 
     @Override
+    public String getUserName() {
+        return null;
+    }
+
+    @Override
+    public int getUserID() {
+        return 0;
+    }
+
+    @Override
     public void setScore(double score) {
         this.score = score;
     }
@@ -93,6 +109,12 @@ public class Guest implements User {
                 - (0.5 * songsRemovedByHost)
                 + (0.1 * songsPlayed)
                 + (0.1 * songsLoved));
+    }
+
+    @Override
+    public void votablePlayed() {
+        this.songsSincePlayed = 0;
+        songsPlayed++;
     }
 
     /**

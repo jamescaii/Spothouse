@@ -38,6 +38,7 @@ class SpotHouse extends Component {
       ],
       clickedSongURI: "",
       currentQueue: [],
+      currentQueueRequesters: [],
       topTracks: [],
       count: 0,
       added: false
@@ -87,14 +88,20 @@ class SpotHouse extends Component {
   
   updateBackendQueue = () => {
     let current = []
+    let currentRequesters = []
     let orderedList = []
+    let orderedListRequesters = []
     let newQueue = []
+    let newQueueRequesters = []
     for (let i = 0; i < this.state.currentQueue.length; i++) {
         let name = this.state.currentQueue[i].name
+        let requester = this.state.currentQueueRequesters[i].name
         current.push(name)
+        currentRequesters.push(requester)
     }
       const toSend = {
-          songs: current
+          songs: current,
+          users:currentRequesters
       }
       let config = {
           headers: {
@@ -110,11 +117,14 @@ class SpotHouse extends Component {
           .then(response => {
               // console.log("THIS IS THE BACKEND QUEUE", response)
               orderedList = response.data["songList"]
+              orderedListRequesters = response.data["requesterList"]
               for (let i = 0; i < orderedList.length; i++) {
                   let songName = orderedList[i].name
+                  let requesterName = orderedListRequesters[i].name
                   for (let j = 0; j < this.state.currentQueue.length; j++) {
                       if (this.state.currentQueue[j].name === songName) {
                           newQueue.push(this.state.currentQueue[j])
+                          newQueueRequesters.push(this.state.currentQueueRequesters[j])
                       }
                   }
               }

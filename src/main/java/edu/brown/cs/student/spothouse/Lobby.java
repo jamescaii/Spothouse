@@ -16,6 +16,7 @@ public class Lobby<T extends Votable> {
     private final List<User> topUsers = new ArrayList<>();
     private final Queue<T> queue = new PriorityQueue<>();
     private final List<T> queueHistory = new ArrayList<>();
+    private final LobbyWebSocket<T> webSocket;
 
     /**
      * A Constructor for the Lobby class
@@ -26,6 +27,7 @@ public class Lobby<T extends Votable> {
         this.host = host;
         this.maxUsers = maxUsers;
         this.users.add(host);
+        this.webSocket = new LobbyWebSocket<>(this, maxUsers);
     }
 
     /**
@@ -87,7 +89,7 @@ public class Lobby<T extends Votable> {
         if (this.users.size() <= maxUsers) {
             this.users.add(user); //todo: check to see if they are already in Lobby?
         } else {
-            throw new Exception("ERROR: Lobby is full");
+            throw new Exception("ERROR: Lobby is full.");
         }
     }
 
@@ -110,6 +112,15 @@ public class Lobby<T extends Votable> {
      */
     public Host getHost() {
         return this.host;
+    }
+
+    public User getUserByID(int userID) {
+        for (User user : users) {
+            if (user.getUserID() == userID) {
+                return user;
+            }
+        }
+        return null;
     }
 
     /**
