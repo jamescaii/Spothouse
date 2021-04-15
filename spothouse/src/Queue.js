@@ -4,6 +4,7 @@ import './Queue.css';
 
 const Queue = props => {
     const clickedMap = useRef([])
+    let code = props.roomCode
 
     const handleUpvote = async (event) => {
         let songName = event.target.id
@@ -23,6 +24,7 @@ const Queue = props => {
             toChange: songName,
             isIncrease: true,
             isReset: false,
+            rCode: code,
         }
         let config = {
             headers: {
@@ -62,6 +64,7 @@ const Queue = props => {
             toChange: songName,
             isIncrease: false,
             isReset: false,
+            rCode: code,
         }
         let config = {
             headers: {

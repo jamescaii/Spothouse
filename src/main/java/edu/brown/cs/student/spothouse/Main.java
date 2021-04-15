@@ -24,9 +24,10 @@ import spark.template.freemarker.FreeMarkerEngine;
  */
 public final class Main {
 
+  private static final Map<Integer, ArrayList<Song2>> songs = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static List<Song2> songs;
+  // private static List<Song2> songs;
   private static Set<String> songSet = new HashSet<>();
 
   /**
@@ -59,7 +60,7 @@ public final class Main {
     InputStreamReader stream = new InputStreamReader(System.in);
     BufferedReader reader = new BufferedReader(stream);
     String input;
-    songs = new ArrayList<>();
+    // songs = new ArrayList<>();
     try {
       while (true) {
         input = reader.readLine();
@@ -86,7 +87,7 @@ public final class Main {
     try {
       config.setDirectoryForTemplateLoading(templates);
     } catch (IOException ioe) {
-      System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
+      // System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
       System.exit(1);
     }
     return new FreeMarkerEngine(config);
@@ -114,10 +115,12 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
-    Spark.post("/queue", new QueueHandler());
+    Spark.post("/queue", new Queue2Handler());
     Spark.post("/rankings", new RankingHandler());
-    Spark.get("/:lobbyID", new LobbyGUI(), freeMarker);
-
+    Spark.post("/setup", new SetupHandler());
+    Spark.post("/join", new JoinHandler());
+    Spark.post("/remove", new RemoveHandler());
+    Spark.post("/getBackQueue", new GetQueueHandler());
   }
 
   /**
@@ -139,57 +142,192 @@ public final class Main {
     }
   }
 
-  private static class QueueHandler implements Route {
+  private static class RemoveHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
-      JSONArray songsJSON = data.getJSONArray("songs");
-      List<String> songList = new ArrayList<>();
-      Set<String> frontSongSet = new HashSet<>();
-      for (int i = 0; i < songsJSON.length(); i++) {
-        songList.add(songsJSON.getString(i));
-        frontSongSet.add(songsJSON.getString(i));
-      }
-      Set<String> removedSongs = new HashSet<>(songSet);
-      removedSongs.removeAll(frontSongSet);
-      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
-      newAddedSongs.removeAll(songSet);
-      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
-      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
-      intersectionSongs.retainAll(songSet);
-      tempSongSet.addAll(intersectionSongs);
-      songSet = tempSongSet;
-      List<Song2> nonRemovedList = new ArrayList<>();
-      for (Song2 song: songs) {
-        if (!removedSongs.contains(song.getName())) {
-          nonRemovedList.add(song);
+      String songUri = data.getString("songUri");
+      String roomCode = data.getString("code");
+      int code = Integer.parseInt(roomCode);
+      songSet.remove(songUri);
+      ArrayList<Song2> tempList = new ArrayList<>();
+      for (Song2 s: songs.get(code)) {
+        if (!s.getUri().equals(songUri)) {
+          tempList.add(s);
         }
       }
-      songs = nonRemovedList;
-      for (String s: newAddedSongs) {
-        Song2 newSong = new Song2(s, "NA", 0);
-        songs.add(newSong);
-      }
-      Map<String, Object> variables = ImmutableMap.of("songList", songs);
+      songs.put(code, tempList);
+      System.out.println("Song removed!");
+      System.out.println(songs.get(code));
+      Map<String, Object> variables = ImmutableMap.of("songSet", songSet);
       return GSON.toJson(variables);
     }
   }
+
+  private static class GetQueueHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String roomCode = data.getString("roomCode");
+      int code = Integer.parseInt(roomCode);
+
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
+      return GSON.toJson(variables);
+    }
+  }
+
+  private static class Queue2Handler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      JSONArray songsJSON = data.getJSONArray("songs");
+      String roomCode = data.getString("roomCode");
+      int code = Integer.parseInt(roomCode);
+
+
+      ArrayList<String> songList = new ArrayList<>();
+      Set<String> frontSongSet = new HashSet<>();
+      ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
+      for (int i = 0; i < songsJSON.length(); i++) {
+        ArrayList<String> temp = new ArrayList<>();
+        JSONObject jsonobject = songsJSON.getJSONObject(i);
+        String name = (String)  jsonobject.get("name");
+        String artist = (String) jsonobject.get("artist");
+        String artwork = (String) jsonobject.get("artwork");
+        String uri = (String) jsonobject.get("uri");
+        temp.add(name);
+        temp.add(artist);
+        temp.add(artwork);
+        temp.add(uri);
+        tempSongList.add(temp);
+        songList.add(uri);
+        frontSongSet.add(uri);
+      }
+
+      Set<String> totalSongSet = new HashSet<>(frontSongSet);
+      totalSongSet.addAll(songSet);
+      Set<String> missingFromFrontendSet = new HashSet<>(songSet);
+      missingFromFrontendSet.removeAll(frontSongSet);
+      Set<String> missingFromBackendSet = new HashSet<>(frontSongSet);
+      missingFromBackendSet.removeAll(songSet);
+      // update songSet to contain songs in both frontend and backend
+      songSet = totalSongSet;
+      // update map of songs to include  e new songs
+      for (ArrayList<String> x : tempSongList) {
+        if (missingFromFrontendSet.contains(x.get(3)) || missingFromBackendSet.contains(x.get(3))) {
+          System.out.println("Song added!");
+          Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), "NA", 0);
+          songs.get(code).add(newSong);
+          System.out.println(songs.get(code));
+        }
+      }
+      Set<String> repeated = new HashSet<>();
+      ArrayList<Song2> noRepeats = new ArrayList<>();
+      for (Song2 element: songs.get(code)) {
+        if (!repeated.contains(element.getName())) {
+          noRepeats.add(element);
+          repeated.add(element.getName());
+        }
+      }
+      songs.put(code, noRepeats);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
+      return GSON.toJson(variables);
+    }
+  }
+
+//  private static class QueueHandler implements Route {
+//    public Object handle(Request request, Response response) throws Exception {
+//      JSONObject data = new JSONObject((request.body()));
+//      JSONArray songsJSON = data.getJSONArray("songs");
+//      System.out.println(songs);
+//      String roomCode = data.getString("roomCode");
+//      int code = Integer.parseInt(roomCode); // Integer.parseInt(roomCode);
+//      ArrayList<String> songList = new ArrayList<>();
+//      Set<String> frontSongSet = new HashSet<>();
+//      for (int i = 0; i < songsJSON.length(); i++) {
+//        songList.add(songsJSON.getString(i));
+//        frontSongSet.add(songsJSON.getString(i));
+//      }
+//      Set<String> removedSongs = new HashSet<>(songSet);
+//      removedSongs.removeAll(frontSongSet);
+//      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
+//      newAddedSongs.removeAll(songSet);
+//      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
+//      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
+//      intersectionSongs.retainAll(songSet);
+//      tempSongSet.addAll(intersectionSongs);
+//      songSet = tempSongSet;
+//      ArrayList<Song2> nonRemovedList = new ArrayList<>();
+//      for (Song2 song: songs.get(code)) {
+//        if (!removedSongs.contains(song.getName())) {
+//          nonRemovedList.add(song);
+//        }
+//      }
+//      songs.put(code, nonRemovedList);
+//      for (String s: newAddedSongs) {
+//        Song2 newSong = new Song2(s, "NA", 0);
+//        songs.get(code).add(newSong);
+//      }
+//      Set<String> repeated = new HashSet<>();
+//      ArrayList<Song2> noRepeats = new ArrayList<>();
+//      for (Song2 element: songs.get(code)) {
+//        if (!repeated.contains(element.getName())) {
+//          noRepeats.add(element);
+//          repeated.add(element.getName());
+//        }
+//      }
+//      songs.put(code, noRepeats);
+//      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
+//      return GSON.toJson(variables);
+//    }
+//  }
 
   private static class RankingHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       String toChange = data.getString("toChange");
+      String roomCode = data.getString("rCode");
+      int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
-      System.out.println(toChange);
-      for (Song2 s: songs) {
+      // System.out.println(toChange);
+      for (Song2 s: songs.get(code)) {
         if (s.getName().equals(toChange)) {
-          if (isIncrease)
+          if (isIncrease) {
             s.addVote(1);
-          else
+          } else {
             s.subVote(1);
+          }
         }
       }
-      Collections.sort(songs);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs, "name", toChange);
+      ArrayList<Song2> tempList = songs.get(code);
+      Collections.sort(tempList);
+      songs.put(code, tempList);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "name", toChange);
+      return GSON.toJson(variables);
+    }
+  }
+
+  private static class SetupHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String roomCode = data.getString("roomCode");
+      System.out.println("new room created: " + roomCode);
+      int code = Integer.parseInt(roomCode);
+      ArrayList<Song2> queue = new ArrayList<>();
+      songs.put(code, queue);
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "");
+      return GSON.toJson(variables);
+    }
+  }
+
+  private static class JoinHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String joinCode = data.getString("query");
+      int code = Integer.parseInt(joinCode);
+      int inMap = 0;
+      if (songs.containsKey(code)) {
+        inMap = 1;
+      }
+      // System.out.println(inMap);
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "exists", inMap, "backendSongs", songs.get(code), "code", code);
       return GSON.toJson(variables);
     }
   }

@@ -43,7 +43,8 @@ class SpotHouse extends Component {
       topTracks: [],
       count: 0,
       added: false,
-      code: 0
+      code: 0,
+      numberQuery: ""
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -52,10 +53,14 @@ class SpotHouse extends Component {
 
   changeQuery(param) {
     this.setState({ searchQuery: param })
-    console.log(param)
+  }
+
+  changeNumberQuery(param) {
+    this.setState({ numberQuery: param })
   }
 
   componentDidMount() {
+    window.songqueue = []
     // Set token
     let _token = hash.access_token;
 
@@ -77,27 +82,34 @@ class SpotHouse extends Component {
     clearInterval(this.interval);
   }
 
+
   tick() {
     if (this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
-      this.updateBackendQueue();
-      if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
-        if (this.state.currentQueue.length > 0)
-          this.addToSpotifyQueue(this.state.token);
+      if (this.state.inRoom) {
+        console.log(window.songqueue)
+        this.retrieveBackendQueue();
+        if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
+          this.setState({ added: true })
+          console.log("almost done")
+          if (window.songqueue.length > 0) {
+            let songUri = window.songqueue.shift().uri;
+            console.log(window.songqueue)
+            this.removeFromBackend(songUri)    
+            this.retrieveBackendQueue();
+            if (this.state.isCreated) {
+              this.addToSpotifyQueue(this.state.token, songUri);   
+            }
+  
+          }
+        }
       }
     }
   }
-
-  updateBackendQueue = () => {
-    let current = []
-    let orderedList = []
-    let newQueue = []
-    for (let i = 0; i < this.state.currentQueue.length; i++) {
-      let name = this.state.currentQueue[i].name
-      current.push(name)
-    }
+  
+  retrieveBackendQueue = () => {
     const toSend = {
-      songs: current
+      roomCode: this.state.code
     }
     let config = {
       headers: {
@@ -106,30 +118,46 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-      "http://localhost:4567/queue",
-      toSend,
-      config
+        "http://localhost:4567/getBackQueue",
+        toSend,
+        config
     )
-      .then(response => {
-        // console.log("THIS IS THE BACKEND QUEUE", response)
-        orderedList = response.data["songList"]
-        for (let i = 0; i < orderedList.length; i++) {
-          let songName = orderedList[i].name
-          for (let j = 0; j < this.state.currentQueue.length; j++) {
-            if (this.state.currentQueue[j].name === songName) {
-              newQueue.push(this.state.currentQueue[j])
-            }
-          }
-        }
-        this.setState({ currentQueue: newQueue })
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+        .then(response => {
+          window.songqueue = response.data["songList"]
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   }
 
-  addToSpotifyQueue = (token) => {
-    let toAdd = encodeURIComponent(this.state.currentQueue[0].uri.trim())
+  updateBackendQueue = () => {
+    let orderedList = []
+    const toSend = {
+      songs: window.songqueue,
+      roomCode: this.state.code
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/queue",
+        toSend,
+        config
+    )
+        .then(response => {
+          orderedList = response.data["songList"]
+          window.songqueue = orderedList
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
+  addToSpotifyQueue = (token, songUri) => {
+    let toAdd = encodeURIComponent(songUri.trim())
     // Make a call using the token
     $.ajax({
       url: "https://api.spotify.com/v1/me/player/queue?uri=" + toAdd,
@@ -138,11 +166,35 @@ class SpotHouse extends Component {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
       },
       success: data => {
-        this.state.currentQueue.shift();
-        this.setState({ added: true })
+        console.log("Song URI", songUri)
       }
     });
   }
+
+  removeFromBackend = (token) => {
+    const toSend = {
+      songUri: token,
+      code: this.state.code
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/remove",
+        toSend,
+        config
+    )
+        .then(response => {
+          console.log(response)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
   scrollToBottom = () => {
     this.endPage.scrollIntoView({ behavior: "smooth" });
   }
@@ -157,7 +209,7 @@ class SpotHouse extends Component {
     let searchQueryParameter = encodeURIComponent(searchQuery.trim())
     // Make a call using the token
     $.ajax({
-      url: "https://api.spotify.com/v1/search?q=" + searchQueryParameter + "&type=track",
+      url: "https://api.spotify.com/v1/search?q=" + searchQueryParameter + "&type=track&limit=10",
       type: "GET",
       beforeSend: xhr => {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -219,7 +271,7 @@ class SpotHouse extends Component {
   getTopTracks(token) {
     // Make a call using the token
     $.ajax({
-      url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=20",
+      url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10",
       type: "GET",
       beforeSend: xhr => {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -241,41 +293,95 @@ class SpotHouse extends Component {
           }
           ))
         });
-        console.log(this.state.topTracks)
       }
     });
   }
 
-  async clickResult(e) {
+  clickResult(e) {
     let clickedArtist = e.currentTarget.textContent.split(" -, ")[0]
     let clickedName = e.currentTarget.textContent.split(" -, ")[1]
     let clickedURI = e.currentTarget.textContent.split(" -, ")[2]
     let clickedArt = e.currentTarget.textContent.split(" -, ")[3]
-    await this.setState({ clickedSongURI: clickedURI })
-    var joined = this.state.currentQueue.concat({
+    this.setState({ clickedSongURI: clickedURI })
+    var joined = window.songqueue.concat({
       name: clickedName,
       artist: clickedArtist,
       artwork: clickedArt,
       uri: clickedURI,
-      upbutton: "<span className=\"voteup\" id = {" + { clickedName } + "} onClick={handleUpvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>",
-      downbutton: "<span className=\"votedown\" id = {" + { clickedName } + "} onClick={handleDownvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>"
     });
-    await this.setState({ currentQueue: joined })
+    if (joined) {
+      window.songqueue = joined
+      this.updateBackendQueue()
+    }
 
     this.setState({ count: this.state.count + 1 })
+    console.log("added!")
+  }
+
+  setUpRoom(val) {
+    const toSend = {
+      roomCode: val
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/setup",
+        toSend,
+        config
+    )
+        .then(response => {
+          console.log(response)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   }
 
   createRoom() {
-    this.setState({isCreated: true})
-    this.setState({inRoom: true})
     let randomCode = Math.floor(10000 + Math.random() * (99999 - 10000));
     this.setState({code: randomCode})
-
+    this.setState({isCreated: true})
+    this.setState({inRoom: true})
+    this.setUpRoom(randomCode)
   }
 
-  joinRoom() {    
+  joinRoom(numberQuery) {
+    let orderedList = []
+    let newQueue = []
     this.setState({isCreated: false})
     this.setState({inRoom: true})
+    console.log(this.state.numberQuery)
+    const toSend = {
+      query: this.state.numberQuery
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/join",
+        toSend,
+        config
+    )
+        .then(response => {
+          console.log(response.data["exists"])
+          console.log(response.data["code"])
+          console.log(response.data["backendSongs"])
+          orderedList = response.data["backendSongs"]
+          let cVal = response.data["code"]
+          this.setState({code: cVal})
+          window.songqueue = orderedList
+          //this.setState({currentQueue: orderedList})
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   }
 
   render() {
@@ -296,7 +402,11 @@ class SpotHouse extends Component {
             <>
               <AwesomeButton type="primary" className="btn btn--search" onPress={() => { this.createRoom() }}>Create Room</AwesomeButton>
               <br></br>
-              <AwesomeButton type="primary" className="btn btn--search" onPress={() => { this.joinRoom() }}>Join Room</AwesomeButton>
+              <TextBox label="Enter Room Number:" force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
+                <hr style={{ height: 10, visibility: "hidden" }} />
+                <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
+                  this.joinRoom(this.state.numberQuery)
+                }}>Join Room</AwesomeButton>
               <br></br>
             </>
           )
@@ -344,6 +454,7 @@ class SpotHouse extends Component {
             
             {this.state.token && this.state.inRoom && !this.state.isCreated && (
               <>
+
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
                 <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
@@ -391,7 +502,8 @@ class SpotHouse extends Component {
             />
 
             <Queue
-              songQueue={this.state.currentQueue}
+              songQueue={window.songqueue}
+              roomCode={this.state.code}
             />
             <br></br>
           </>
@@ -400,7 +512,8 @@ class SpotHouse extends Component {
           <>
 
             <Queue
-              songQueue={this.state.currentQueue}
+              songQueue={window.songqueue}
+              roomCode={this.state.code}
             />
             <br></br>
 
