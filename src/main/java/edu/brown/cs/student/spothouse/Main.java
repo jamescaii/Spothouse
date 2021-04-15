@@ -146,7 +146,7 @@ public final class Main {
       JSONArray songsJSON = data.getJSONArray("songs");
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-      System.out.println(songs);
+      //System.out.println(songs);
       ArrayList<String> songList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
       ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
@@ -162,36 +162,23 @@ public final class Main {
         temp.add(artwork);
         temp.add(uri);
         tempSongList.add(temp);
-        songList.add(name);
-        frontSongSet.add(name);
+        songList.add(uri);
+        frontSongSet.add(uri);
       }
-      // System.out.println(tempSongList);
-      Set<String> removedSongs = new HashSet<>(songSet);
-      removedSongs.removeAll(frontSongSet);
-      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
-      newAddedSongs.removeAll(songSet);
-      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
-      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
-      intersectionSongs.retainAll(songSet);
-      tempSongSet.addAll(intersectionSongs);
-      songSet = tempSongSet;
-      ArrayList<Song2> nonRemovedList = new ArrayList<>();
-      for (Song2 song: songs.get(code)) {
-        if (!removedSongs.contains(song.getName())) {
-          nonRemovedList.add(song);
-        }
-      }
-      songs.put(code, nonRemovedList);
-      for (String s: newAddedSongs) {
-        for (ArrayList<String> ele: tempSongList) {
-          // System.out.println(ele);
-          // System.out.println(ele.get(0));
-          // System.out.println(s);
-          if (ele.get(0).equals(s)) {
-            // System.out.println(ele);
-            Song2 newSong = new Song2(s, ele.get(1), ele.get(2), ele.get(3), "NA", 0);
-            songs.get(code).add(newSong);
-          }
+
+      Set<String> totalSongSet = new HashSet<>(frontSongSet);
+      totalSongSet.addAll(songSet);
+      Set<String> missingFromFrontendSet = new HashSet<>(songSet);
+      missingFromFrontendSet.removeAll(frontSongSet);
+      Set<String> missingFromBackendSet = new HashSet<>(frontSongSet);
+      missingFromBackendSet.removeAll(songSet);
+      // update songSet to contain songs in both frontend and backend
+      songSet = totalSongSet;
+      // update map of songs to include this new song
+      for (ArrayList<String> x : tempSongList) {
+        if (missingFromFrontendSet.contains(x.get(3)) || missingFromBackendSet.contains(x.get(3))) {
+          Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), "NA", 0);
+          songs.get(code).add(newSong);
         }
       }
       Set<String> repeated = new HashSet<>();
@@ -203,6 +190,7 @@ public final class Main {
         }
       }
       songs.put(code, noRepeats);
+      System.out.println(songs.get(code));
       Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
       return GSON.toJson(variables);
     }

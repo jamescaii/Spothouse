@@ -317,15 +317,16 @@ class SpotHouse extends Component {
         .then(response => {
           // console.log("THIS IS THE BACKEND QUEUE", response)
           orderedList = response.data["songList"]
-          for (let i = 0; i < orderedList.length; i++) {
-            let songName = orderedList[i].name
-            for (let j = 0; j < this.state.currentQueue.length; j++) {
-              if (this.state.currentQueue[j].name === songName) {
-                newQueue.push(this.state.currentQueue[j])
-              }
-            }
-          }
-          this.setState({ currentQueue: newQueue })
+          // for (let i = 0; i < orderedList.length; i++) {
+          //   let songName = orderedList[i].name
+          //   for (let j = 0; j < this.state.currentQueue.length; j++) {
+          //     if (this.state.currentQueue[j].name === songName) {
+          //       newQueue.push(this.state.currentQueue[j])
+          //     }
+          //   }
+          // }
+          // this.setState({ currentQueue: newQueue })
+          this.setState({currentQueue: orderedList})
         })
         .catch(function (error) {
           console.log(error);
