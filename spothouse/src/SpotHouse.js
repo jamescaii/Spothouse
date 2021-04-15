@@ -95,6 +95,7 @@ class SpotHouse extends Component {
   }
 
   addToSpotifyQueue = (token) => {
+    let songUri = this.state.currentQueue[0].uri
     let toAdd = encodeURIComponent(this.state.currentQueue[0].uri.trim())
     // Make a call using the token
     $.ajax({
@@ -104,11 +105,39 @@ class SpotHouse extends Component {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
       },
       success: data => {
+        console.log("Song URI", songUri)
         this.state.currentQueue.shift();
         this.setState({ added: true })
+        // remove top song from backend queue and set
+        this.removeFromBackend(songUri)
       }
     });
   }
+
+  removeFromBackend = (token) => {
+    const toSend = {
+      songUri: token,
+      code: this.state.code
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/remove",
+        toSend,
+        config
+    )
+        .then(response => {
+          console.log(response)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
   scrollToBottom = () => {
     this.endPage.scrollIntoView({ behavior: "smooth" });
   }

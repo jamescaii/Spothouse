@@ -119,6 +119,7 @@ public final class Main {
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupHandler());
     Spark.post("/join", new JoinHandler());
+    Spark.post("/remove", new RemoveHandler());
   }
 
   /**
@@ -137,6 +138,25 @@ public final class Main {
         pw.println("</pre>");
       }
       res.body(stacktrace.toString());
+    }
+  }
+
+  private static class RemoveHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String songUri = data.getString("songUri");
+      String roomCode = data.getString("code");
+      int code = Integer.parseInt(roomCode);
+      songSet.remove(songUri);
+      ArrayList<Song2> tempList = new ArrayList<>();
+      for (Song2 s: songs.get(code)) {
+        if (!s.getUri().equals(songUri)) {
+          tempList.add(s);
+        }
+      }
+      songs.put(code, tempList);
+      Map<String, Object> variables = ImmutableMap.of("songSet", songSet);
+      return GSON.toJson(variables);
     }
   }
 
