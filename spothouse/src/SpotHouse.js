@@ -43,7 +43,8 @@ class SpotHouse extends Component {
       topTracks: [],
       count: 0,
       added: false,
-      code: 0
+      code: 0,
+      numberQuery: ""
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -52,7 +53,10 @@ class SpotHouse extends Component {
 
   changeQuery(param) {
     this.setState({ searchQuery: param })
-    console.log(param)
+  }
+
+  changeNumberQuery(param) {
+    this.setState({ numberQuery: param })
   }
 
   componentDidMount() {
@@ -298,7 +302,7 @@ class SpotHouse extends Component {
     this.setUpRoom(randomCode)
   }
 
-  joinRoom() {    
+  joinRoom(numberQuery) {    
     this.setState({isCreated: false})
     this.setState({inRoom: true})
   }
@@ -321,7 +325,11 @@ class SpotHouse extends Component {
             <>
               <AwesomeButton type="primary" className="btn btn--search" onPress={() => { this.createRoom() }}>Create Room</AwesomeButton>
               <br></br>
-              <AwesomeButton type="primary" className="btn btn--search" onPress={() => { this.joinRoom() }}>Join Room</AwesomeButton>
+              <TextBox label="Enter Room Number:" force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
+                <hr style={{ height: 10, visibility: "hidden" }} />
+                <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
+                  this.joinRoom(this.state.numberQuery)
+                }}>Join Room</AwesomeButton>
               <br></br>
             </>
           )
@@ -369,6 +377,7 @@ class SpotHouse extends Component {
             
             {this.state.token && this.state.inRoom && !this.state.isCreated && (
               <>
+
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
                 <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
