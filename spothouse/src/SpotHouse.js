@@ -94,83 +94,6 @@ class SpotHouse extends Component {
     }
   }
 
-  updateBackendQueue2 = () => {
-    let orderedList = []
-    let newQueue = []
-    const toSend = {
-      songs: this.state.currentQueue,
-      roomCode: this.state.code
-    }
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-        'Access-Control-Allow-Origin': '*',
-      }
-    }
-    axios.post(
-        "http://localhost:4567/queue",
-        toSend,
-        config
-    )
-        .then(response => {
-          // console.log("THIS IS THE BACKEND QUEUE", response)
-          orderedList = response.data["songList"]
-          for (let i = 0; i < orderedList.length; i++) {
-            let songName = orderedList[i].name
-            for (let j = 0; j < this.state.currentQueue.length; j++) {
-              if (this.state.currentQueue[j].name === songName) {
-                newQueue.push(this.state.currentQueue[j])
-              }
-            }
-          }
-          this.setState({ currentQueue: newQueue })
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-  }
-
-  updateBackendQueue = () => {
-    let current = []
-    let orderedList = []
-    let newQueue = []
-    for (let i = 0; i < this.state.currentQueue.length; i++) {
-      let name = this.state.currentQueue[i].name
-      current.push(name)
-    }
-    const toSend = {
-      songs: current,
-      roomCode: this.state.code
-    }
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-        'Access-Control-Allow-Origin': '*',
-      }
-    }
-    axios.post(
-      "http://localhost:4567/queue",
-      toSend,
-      config
-    )
-      .then(response => {
-        // console.log("THIS IS THE BACKEND QUEUE", response)
-        orderedList = response.data["songList"]
-        for (let i = 0; i < orderedList.length; i++) {
-          let songName = orderedList[i].name
-          for (let j = 0; j < this.state.currentQueue.length; j++) {
-            if (this.state.currentQueue[j].name === songName) {
-              newQueue.push(this.state.currentQueue[j])
-            }
-          }
-        }
-        this.setState({ currentQueue: newQueue })
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
   addToSpotifyQueue = (token) => {
     let toAdd = encodeURIComponent(this.state.currentQueue[0].uri.trim())
     // Make a call using the token
@@ -331,6 +254,84 @@ class SpotHouse extends Component {
         });
   }
 
+  updateBackendQueue = () => {
+    let current = []
+    let orderedList = []
+    let newQueue = []
+    for (let i = 0; i < this.state.currentQueue.length; i++) {
+      let name = this.state.currentQueue[i].name
+      current.push(name)
+    }
+    console.log(this.state.currentQueue)
+    const toSend = {
+      songs: current,
+      roomCode: this.state.code
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/queue",
+        toSend,
+        config
+    )
+        .then(response => {
+          // console.log("THIS IS THE BACKEND QUEUE", response)
+          orderedList = response.data["songList"]
+          for (let i = 0; i < orderedList.length; i++) {
+            let songName = orderedList[i].name
+            for (let j = 0; j < this.state.currentQueue.length; j++) {
+              if (this.state.currentQueue[j].name === songName) {
+                newQueue.push(this.state.currentQueue[j])
+              }
+            }
+          }
+          this.setState({ currentQueue: newQueue })
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
+  updateBackendQueue2 = () => {
+    let orderedList = []
+    let newQueue = []
+    const toSend = {
+      songs: this.state.currentQueue,
+      roomCode: this.state.code
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/queue",
+        toSend,
+        config
+    )
+        .then(response => {
+          // console.log("THIS IS THE BACKEND QUEUE", response)
+          orderedList = response.data["songList"]
+          for (let i = 0; i < orderedList.length; i++) {
+            let songName = orderedList[i].name
+            for (let j = 0; j < this.state.currentQueue.length; j++) {
+              if (this.state.currentQueue[j].name === songName) {
+                newQueue.push(this.state.currentQueue[j])
+              }
+            }
+          }
+          this.setState({ currentQueue: newQueue })
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
   createRoom() {
     let randomCode = Math.floor(10000 + Math.random() * (99999 - 10000));
     this.setState({code: randomCode})
@@ -340,6 +341,8 @@ class SpotHouse extends Component {
   }
 
   joinRoom(numberQuery) {
+    let orderedList = []
+    let newQueue = []
     this.setState({isCreated: false})
     this.setState({inRoom: true})
     console.log(this.state.numberQuery)
@@ -359,7 +362,12 @@ class SpotHouse extends Component {
     )
         .then(response => {
           console.log(response.data["exists"])
+          console.log(response.data["code"])
           console.log(response.data["backendSongs"])
+          orderedList = response.data["backendSongs"]
+          let cVal = response.data["code"]
+          this.setState({code: cVal})
+          this.setState({currentQueue: orderedList})
         })
         .catch(function (error) {
           console.log(error);

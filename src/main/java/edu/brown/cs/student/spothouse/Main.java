@@ -146,6 +146,7 @@ public final class Main {
       JSONArray songsJSON = data.getJSONArray("songs");
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
+      System.out.println(songs);
       ArrayList<String> songList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
       ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
@@ -183,11 +184,11 @@ public final class Main {
       songs.put(code, nonRemovedList);
       for (String s: newAddedSongs) {
         for (ArrayList<String> ele: tempSongList) {
-          System.out.println(ele);
-          System.out.println(ele.get(0));
-          System.out.println(s);
+          // System.out.println(ele);
+          // System.out.println(ele.get(0));
+          // System.out.println(s);
           if (ele.get(0).equals(s)) {
-            System.out.println(ele);
+            // System.out.println(ele);
             Song2 newSong = new Song2(s, ele.get(1), ele.get(2), ele.get(3), "NA", 0);
             songs.get(code).add(newSong);
           }
@@ -301,7 +302,7 @@ public final class Main {
         inMap = 1;
       }
       // System.out.println(inMap);
-      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "exists", inMap, "backendSongs", songs.get(code));
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "exists", inMap, "backendSongs", songs.get(code), "code", code);
       return GSON.toJson(variables);
     }
   }
