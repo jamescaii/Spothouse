@@ -88,9 +88,7 @@ class SpotHouse extends Component {
       this.getCurrentlyPlaying(this.state.token);
       if (this.state.inRoom) {
         console.log(window.songqueue)
-        if (!this.state.isCreated) {
-          this.retrieveBackendQueue();
-        }
+        this.retrieveBackendQueue();
         if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
           this.setState({ added: true })
           console.log("almost done")
