@@ -83,14 +83,51 @@ class SpotHouse extends Component {
 
   tick() {
     console.log(this.state.code)
+    console.log(this.state.currentQueue)
     if (this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
-      this.updateBackendQueue();
+      this.updateBackendQueue2();
       if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
         if (this.state.currentQueue.length > 0)
           this.addToSpotifyQueue(this.state.token);
       }
     }
+  }
+
+  updateBackendQueue2 = () => {
+    let orderedList = []
+    let newQueue = []
+    const toSend = {
+      songs: this.state.currentQueue,
+      roomCode: this.state.code
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/queue",
+        toSend,
+        config
+    )
+        .then(response => {
+          // console.log("THIS IS THE BACKEND QUEUE", response)
+          orderedList = response.data["songList"]
+          for (let i = 0; i < orderedList.length; i++) {
+            let songName = orderedList[i].name
+            for (let j = 0; j < this.state.currentQueue.length; j++) {
+              if (this.state.currentQueue[j].name === songName) {
+                newQueue.push(this.state.currentQueue[j])
+              }
+            }
+          }
+          this.setState({ currentQueue: newQueue })
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   }
 
   updateBackendQueue = () => {
@@ -263,8 +300,8 @@ class SpotHouse extends Component {
       artist: clickedArtist,
       artwork: clickedArt,
       uri: clickedURI,
-      upbutton: "<span className=\"voteup\" id = {" + { clickedName } + "} onClick={handleUpvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>",
-      downbutton: "<span className=\"votedown\" id = {" + { clickedName } + "} onClick={handleDownvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>"
+      // upbutton: "<span className=\"voteup\" id = {" + { clickedName } + "} onClick={handleUpvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>",
+      // downbutton: "<span className=\"votedown\" id = {" + { clickedName } + "} onClick={handleDownvote}> <svg width=\"36\" height=\"36\"> <path d=\"M2 26h32L18 10 2 26z\" fill=\"currentColor\" id={item.name}></path></svg></span>"
     });
     await this.setState({ currentQueue: joined })
 
@@ -302,7 +339,7 @@ class SpotHouse extends Component {
     this.setUpRoom(randomCode)
   }
 
-  joinRoom(numberQuery) {    
+  joinRoom(numberQuery) {
     this.setState({isCreated: false})
     this.setState({inRoom: true})
     console.log(this.state.numberQuery)

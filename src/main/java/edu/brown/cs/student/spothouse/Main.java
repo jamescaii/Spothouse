@@ -87,7 +87,7 @@ public final class Main {
     try {
       config.setDirectoryForTemplateLoading(templates);
     } catch (IOException ioe) {
-      System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
+      // System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
       System.exit(1);
     }
     return new FreeMarkerEngine(config);
@@ -115,7 +115,7 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
-    Spark.post("/queue", new QueueHandler());
+    Spark.post("/queue", new Queue2Handler());
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupHandler());
     Spark.post("/join", new JoinHandler());
@@ -140,19 +140,31 @@ public final class Main {
     }
   }
 
-  private static class QueueHandler implements Route {
+  private static class Queue2Handler implements Route {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       JSONArray songsJSON = data.getJSONArray("songs");
-      System.out.println(songs);
       String roomCode = data.getString("roomCode");
-      int code = Integer.parseInt(roomCode); // Integer.parseInt(roomCode);
+      int code = Integer.parseInt(roomCode);
       ArrayList<String> songList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
+      ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
       for (int i = 0; i < songsJSON.length(); i++) {
-        songList.add(songsJSON.getString(i));
-        frontSongSet.add(songsJSON.getString(i));
+        ArrayList<String> temp = new ArrayList<>();
+        JSONObject jsonobject = songsJSON.getJSONObject(i);
+        String name = (String)  jsonobject.get("name");
+        String artist = (String) jsonobject.get("artist");
+        String artwork = (String) jsonobject.get("artwork");
+        String uri = (String) jsonobject.get("uri");
+        temp.add(name);
+        temp.add(artist);
+        temp.add(artwork);
+        temp.add(uri);
+        tempSongList.add(temp);
+        songList.add(name);
+        frontSongSet.add(name);
       }
+      // System.out.println(tempSongList);
       Set<String> removedSongs = new HashSet<>(songSet);
       removedSongs.removeAll(frontSongSet);
       Set<String> newAddedSongs = new HashSet<>(frontSongSet);
@@ -170,13 +182,77 @@ public final class Main {
       }
       songs.put(code, nonRemovedList);
       for (String s: newAddedSongs) {
-        Song2 newSong = new Song2(s, "NA", 0);
-        songs.get(code).add(newSong);
+        for (ArrayList<String> ele: tempSongList) {
+          System.out.println(ele);
+          System.out.println(ele.get(0));
+          System.out.println(s);
+          if (ele.get(0).equals(s)) {
+            System.out.println(ele);
+            Song2 newSong = new Song2(s, ele.get(1), ele.get(2), ele.get(3), "NA", 0);
+            songs.get(code).add(newSong);
+          }
+        }
       }
+      Set<String> repeated = new HashSet<>();
+      ArrayList<Song2> noRepeats = new ArrayList<>();
+      for (Song2 element: songs.get(code)) {
+        if (!repeated.contains(element.getName())) {
+          noRepeats.add(element);
+          repeated.add(element.getName());
+        }
+      }
+      songs.put(code, noRepeats);
       Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
       return GSON.toJson(variables);
     }
   }
+
+//  private static class QueueHandler implements Route {
+//    public Object handle(Request request, Response response) throws Exception {
+//      JSONObject data = new JSONObject((request.body()));
+//      JSONArray songsJSON = data.getJSONArray("songs");
+//      System.out.println(songs);
+//      String roomCode = data.getString("roomCode");
+//      int code = Integer.parseInt(roomCode); // Integer.parseInt(roomCode);
+//      ArrayList<String> songList = new ArrayList<>();
+//      Set<String> frontSongSet = new HashSet<>();
+//      for (int i = 0; i < songsJSON.length(); i++) {
+//        songList.add(songsJSON.getString(i));
+//        frontSongSet.add(songsJSON.getString(i));
+//      }
+//      Set<String> removedSongs = new HashSet<>(songSet);
+//      removedSongs.removeAll(frontSongSet);
+//      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
+//      newAddedSongs.removeAll(songSet);
+//      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
+//      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
+//      intersectionSongs.retainAll(songSet);
+//      tempSongSet.addAll(intersectionSongs);
+//      songSet = tempSongSet;
+//      ArrayList<Song2> nonRemovedList = new ArrayList<>();
+//      for (Song2 song: songs.get(code)) {
+//        if (!removedSongs.contains(song.getName())) {
+//          nonRemovedList.add(song);
+//        }
+//      }
+//      songs.put(code, nonRemovedList);
+//      for (String s: newAddedSongs) {
+//        Song2 newSong = new Song2(s, "NA", 0);
+//        songs.get(code).add(newSong);
+//      }
+//      Set<String> repeated = new HashSet<>();
+//      ArrayList<Song2> noRepeats = new ArrayList<>();
+//      for (Song2 element: songs.get(code)) {
+//        if (!repeated.contains(element.getName())) {
+//          noRepeats.add(element);
+//          repeated.add(element.getName());
+//        }
+//      }
+//      songs.put(code, noRepeats);
+//      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
+//      return GSON.toJson(variables);
+//    }
+//  }
 
   private static class RankingHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
@@ -185,7 +261,7 @@ public final class Main {
       String roomCode = data.getString("rCode");
       int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
-      System.out.println(toChange);
+      // System.out.println(toChange);
       for (Song2 s: songs.get(code)) {
         if (s.getName().equals(toChange)) {
           if (isIncrease) {
@@ -224,7 +300,7 @@ public final class Main {
       if (songs.containsKey(code)) {
         inMap = 1;
       }
-      System.out.println(inMap);
+      // System.out.println(inMap);
       Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "exists", inMap, "backendSongs", songs.get(code));
       return GSON.toJson(variables);
     }
