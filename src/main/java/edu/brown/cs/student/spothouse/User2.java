@@ -2,13 +2,30 @@ package edu.brown.cs.student.spothouse;
 
 public class User2 {
   private String username;
-  private int id;
   private int score = 0;
   private boolean onFire = false;
-  public User2(String username, int id) {
+  private boolean isHost;
+  public User2(String username, boolean isHost) {
     this.username = username;
-    this.id = id;
+    this.isHost = isHost;
   }
+
+  public boolean isHost() {
+    return isHost;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public int getScore() {
+    return score;
+  }
+
+  public boolean isOnFire() {
+    return onFire;
+  }
+
   public void addScore(int s) {
     score += s;
   }
