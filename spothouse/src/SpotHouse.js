@@ -305,6 +305,28 @@ class SpotHouse extends Component {
   joinRoom(numberQuery) {    
     this.setState({isCreated: false})
     this.setState({inRoom: true})
+    console.log(this.state.numberQuery)
+    const toSend = {
+      query: this.state.numberQuery
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/join",
+        toSend,
+        config
+    )
+        .then(response => {
+          console.log(response.data["exists"])
+          console.log(response.data["backendSongs"])
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
   }
 
   render() {

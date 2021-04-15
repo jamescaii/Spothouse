@@ -118,7 +118,7 @@ public final class Main {
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupHandler());
-
+    Spark.post("/join", new JoinHandler());
   }
 
   /**
@@ -144,6 +144,7 @@ public final class Main {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       JSONArray songsJSON = data.getJSONArray("songs");
+      System.out.println(songs);
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode); // Integer.parseInt(roomCode);
       ArrayList<String> songList = new ArrayList<>();
@@ -208,9 +209,23 @@ public final class Main {
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
       ArrayList<Song2> queue = new ArrayList<>();
-      System.out.println("sbfvdksbkd");
       songs.put(code, queue);
       Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "");
+      return GSON.toJson(variables);
+    }
+  }
+
+  private static class JoinHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String joinCode = data.getString("query");
+      int code = Integer.parseInt(joinCode);
+      int inMap = 0;
+      if (songs.containsKey(code)) {
+        inMap = 1;
+      }
+      System.out.println(inMap);
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "exists", inMap, "backendSongs", songs.get(code));
       return GSON.toJson(variables);
     }
   }
