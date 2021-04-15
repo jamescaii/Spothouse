@@ -78,6 +78,7 @@ class SpotHouse extends Component {
   }
 
   tick() {
+    console.log(this.state.code)
     if (this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
       this.updateBackendQueue();
@@ -97,7 +98,8 @@ class SpotHouse extends Component {
       current.push(name)
     }
     const toSend = {
-      songs: current
+      songs: current,
+      roomCode: this.state.code
     }
     let config = {
       headers: {
@@ -265,12 +267,35 @@ class SpotHouse extends Component {
     this.setState({ count: this.state.count + 1 })
   }
 
+  setUpRoom(val) {
+    const toSend = {
+      roomCode: val
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/setup",
+        toSend,
+        config
+    )
+        .then(response => {
+          console.log(response)
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
   createRoom() {
-    this.setState({isCreated: true})
-    this.setState({inRoom: true})
     let randomCode = Math.floor(10000 + Math.random() * (99999 - 10000));
     this.setState({code: randomCode})
-
+    this.setState({isCreated: true})
+    this.setState({inRoom: true})
+    this.setUpRoom(randomCode)
   }
 
   joinRoom() {    
@@ -392,6 +417,7 @@ class SpotHouse extends Component {
 
             <Queue
               songQueue={this.state.currentQueue}
+              roomCode={this.state.code}
             />
             <br></br>
           </>
@@ -401,6 +427,7 @@ class SpotHouse extends Component {
 
             <Queue
               songQueue={this.state.currentQueue}
+              roomCode={this.state.code}
             />
             <br></br>
 

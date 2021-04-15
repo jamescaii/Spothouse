@@ -24,9 +24,10 @@ import spark.template.freemarker.FreeMarkerEngine;
  */
 public final class Main {
 
+  private static final Map<Integer, ArrayList<Song2>> songs = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static List<Song2> songs;
+  // private static List<Song2> songs;
   private static Set<String> songSet = new HashSet<>();
 
   /**
@@ -59,7 +60,7 @@ public final class Main {
     InputStreamReader stream = new InputStreamReader(System.in);
     BufferedReader reader = new BufferedReader(stream);
     String input;
-    songs = new ArrayList<>();
+    // songs = new ArrayList<>();
     try {
       while (true) {
         input = reader.readLine();
@@ -116,7 +117,7 @@ public final class Main {
     FreeMarkerEngine freeMarker = createEngine();
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
-    Spark.get("/:lobbyID", new LobbyGUI(), freeMarker);
+    Spark.post("/setup", new SetupHandler());
 
   }
 
@@ -143,7 +144,9 @@ public final class Main {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       JSONArray songsJSON = data.getJSONArray("songs");
-      List<String> songList = new ArrayList<>();
+      String roomCode = data.getString("roomCode");
+      int code = Integer.parseInt(roomCode); // Integer.parseInt(roomCode);
+      ArrayList<String> songList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
       for (int i = 0; i < songsJSON.length(); i++) {
         songList.add(songsJSON.getString(i));
@@ -158,18 +161,18 @@ public final class Main {
       intersectionSongs.retainAll(songSet);
       tempSongSet.addAll(intersectionSongs);
       songSet = tempSongSet;
-      List<Song2> nonRemovedList = new ArrayList<>();
-      for (Song2 song: songs) {
+      ArrayList<Song2> nonRemovedList = new ArrayList<>();
+      for (Song2 song: songs.get(code)) {
         if (!removedSongs.contains(song.getName())) {
           nonRemovedList.add(song);
         }
       }
-      songs = nonRemovedList;
+      songs.put(code, nonRemovedList);
       for (String s: newAddedSongs) {
         Song2 newSong = new Song2(s, "NA", 0);
-        songs.add(newSong);
+        songs.get(code).add(newSong);
       }
-      Map<String, Object> variables = ImmutableMap.of("songList", songs);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -178,18 +181,36 @@ public final class Main {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       String toChange = data.getString("toChange");
+      String roomCode = data.getString("rCode");
+      int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
       System.out.println(toChange);
-      for (Song2 s: songs) {
+      for (Song2 s: songs.get(code)) {
         if (s.getName().equals(toChange)) {
-          if (isIncrease)
+          if (isIncrease) {
             s.addVote(1);
-          else
+          } else {
             s.subVote(1);
+          }
         }
       }
-      Collections.sort(songs);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs, "name", toChange);
+      ArrayList<Song2> tempList = songs.get(code);
+      Collections.sort(tempList);
+      songs.put(code, tempList);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "name", toChange);
+      return GSON.toJson(variables);
+    }
+  }
+
+  private static class SetupHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String roomCode = data.getString("roomCode");
+      int code = Integer.parseInt(roomCode);
+      ArrayList<Song2> queue = new ArrayList<>();
+      System.out.println("sbfvdksbkd");
+      songs.put(code, queue);
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "");
       return GSON.toJson(variables);
     }
   }
