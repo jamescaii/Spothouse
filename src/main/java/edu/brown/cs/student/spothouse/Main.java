@@ -177,15 +177,19 @@ public final class Main {
   private static class RankingHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
-      String toUpdate = data.getString("increased");
-      System.out.println(toUpdate);
+      String toChange = data.getString("toChange");
+      boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
+      System.out.println(toChange);
       for (Song2 s: songs) {
-        if (s.getName().equals(toUpdate)) {
-          s.addVote(1);
+        if (s.getName().equals(toChange)) {
+          if (isIncrease)
+            s.addVote(1);
+          else
+            s.subVote(1);
         }
       }
       Collections.sort(songs);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs, "name", toUpdate);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs, "name", toChange);
       return GSON.toJson(variables);
     }
   }

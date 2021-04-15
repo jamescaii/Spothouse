@@ -11,16 +11,18 @@ const Queue = props => {
         for (let i = 0; i < clickedMap.current.length; i++) {
             if (clickedMap.current[i].name === songName) {
                 console.log(clickedMap.current[i].name)
-                clickedMap.current[i].boolean = !clickedMap.current[i].boolean
+                clickedMap.current[i].upboolean = !clickedMap.current[i].upboolean
                 found = true
             }
         }
         console.log(clickedMap.current)
         if (!found) {
-            clickedMap.current.push({name: songName, boolean: true})
+            clickedMap.current.push({name: songName, upboolean: true})
         }
         const toSend = {
-            increased: songName
+            toChange: songName,
+            isIncrease: true,
+            isReset: false,
         }
         let config = {
             headers: {
@@ -41,20 +43,25 @@ const Queue = props => {
 
     }
     
+
     const handleDownvote = async (event) => {
         let songName = event.target.id
         let found = false;
         for (let i = 0; i < clickedMap.current.length; i++) {
             if (clickedMap.current[i].name === songName) {
-                clickedMap.current[i].boolean = !clickedMap.current[i].boolean
-                found = true;
+                console.log(clickedMap.current[i].name)
+                clickedMap.current[i].downboolean = !clickedMap.current[i].downboolean
+                found = true
             }
         }
+        console.log(clickedMap.current)
         if (!found) {
-            clickedMap.current.push({name: songName, boolean: true})
+            clickedMap.current.push({name: songName, downboolean: true})
         }
         const toSend = {
-            increased: songName
+            toChange: songName,
+            isIncrease: false,
+            isReset: false,
         }
         let config = {
             headers: {
@@ -75,19 +82,34 @@ const Queue = props => {
 
     }
     
-    function ifClicked(songName) {        
+    function Clicked(songName, isUp) {        
         for (let i = 0; i < clickedMap.current.length; i++) {
             if (clickedMap.current[i].name === songName) {
                 //console.log(clickedMap.current[i].name, songName)
-                return clickedMap.current[i].boolean
+                if (isUp)
+                    return clickedMap.current[i].upboolean
+                else
+                    return clickedMap.current[i].downboolean
             }
         }
         return false
     }
 
-    function getColor(songName) {
+    function getColorUp(songName) {
         //console.log(songName)
-        if (!ifClicked(songName)) {
+        if (!Clicked(songName, true)) {
+            //console.log("not clicked")
+            return { fill: "#687074" }
+        }
+        else {            
+            //console.log("clicked")
+            return { fill: "#f48024" }
+        }
+    }
+    
+    function getColorDown(songName) {
+        //console.log(songName)
+        if (!Clicked(songName, false)) {
             //console.log("not clicked")
             return { fill: "#687074" }
         }
@@ -109,12 +131,12 @@ const Queue = props => {
                             <td align="center">
                                 <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 26h32L18 10 2 26z" style={getColor(item.name)} id={item.name}></path>
+                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name}></path>
                                   </svg>
                                 </span>
                                 <span className="votedown" onClick={handleDownvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 10h32L18 26 2 10z" style={getColor(item.name)}></path>
+                                    <path d="M2 10h32L18 26 2 10z" style={getColorDown(item.name)} id={item.name}></path>
                                   </svg>
                                 </span>
                             </td>
