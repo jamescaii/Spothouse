@@ -4,6 +4,7 @@ import java.io.*;
 
 import freemarker.template.Configuration;
 import java.util.*;
+import java.util.List;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -24,9 +25,9 @@ import spark.template.freemarker.FreeMarkerEngine;
 public final class Main {
 
   private static final Map<Integer, ArrayList<Song2>> songs = new HashMap<>();
-  private static final Map<Integer, ArrayList<User2>> users = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
+  // private static List<Song2> songs;
   private static Set<String> songSet = new HashSet<>();
 
   /**
@@ -59,6 +60,7 @@ public final class Main {
     InputStreamReader stream = new InputStreamReader(System.in);
     BufferedReader reader = new BufferedReader(stream);
     String input;
+    // songs = new ArrayList<>();
     try {
       while (true) {
         input = reader.readLine();
@@ -208,8 +210,7 @@ public final class Main {
         }
       }
       songs.put(code, noRepeats);
-      System.out.println(songs.get(code));
-      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "userList", users.get(code));
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -291,16 +292,9 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-      String hostName = data.getString("hostName");
-      System.out.println(hostName);
-      User2 newUser = new User2(hostName, true);
-      ArrayList<User2> tempList = new ArrayList<>();
-      tempList.add(newUser);
-      users.put(code, tempList);
-      System.out.println(users.get(code).get(0).getUsername());
       ArrayList<Song2> queue = new ArrayList<>();
       songs.put(code, queue);
-      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "userList", users.get(code));
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "");
       return GSON.toJson(variables);
     }
   }
@@ -310,18 +304,12 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String joinCode = data.getString("query");
       int code = Integer.parseInt(joinCode);
-      String guestName = data.getString("guestName");
-      User2 newUser = new User2(guestName, false);
-      ArrayList<User2> tempList = users.get(code);
-      tempList.add(newUser);
-      users.put(code, tempList);
-      System.out.println(users.get(code).get(1).getUsername());
       int inMap = 0;
       if (songs.containsKey(code)) {
         inMap = 1;
       }
-      Map<String, Object> variables = ImmutableMap.of("name", "", "exists", inMap, "backendSongs",
-              songs.get(code), "code", code, "userList", users.get(code));
+      // System.out.println(inMap);
+      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "exists", inMap, "backendSongs", songs.get(code), "code", code);
       return GSON.toJson(variables);
     }
   }

@@ -44,9 +44,7 @@ class SpotHouse extends Component {
       count: 0,
       added: false,
       code: 0,
-      numberQuery: "",
-      userQuery: "",
-      userList: []
+      numberQuery: ""
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -59,10 +57,6 @@ class SpotHouse extends Component {
 
   changeNumberQuery(param) {
     this.setState({ numberQuery: param })
-  }
-
-  changeUserQuery(param) {
-    this.setState({ userQuery: param })
   }
 
   componentDidMount() {
@@ -266,94 +260,9 @@ class SpotHouse extends Component {
     this.setState({ count: this.state.count + 1 })
   }
 
-  updateBackendQueue = () => {
-    let current = []
-    let orderedList = []
-    let newQueue = []
-    for (let i = 0; i < this.state.currentQueue.length; i++) {
-      let name = this.state.currentQueue[i].name
-      current.push(name)
-    }
-    console.log(this.state.currentQueue)
-    const toSend = {
-      songs: current,
-      roomCode: this.state.code
-    }
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-        'Access-Control-Allow-Origin': '*',
-      }
-    }
-    axios.post(
-        "http://localhost:4567/queue",
-        toSend,
-        config
-    )
-        .then(response => {
-          // console.log("THIS IS THE BACKEND QUEUE", response)
-          orderedList = response.data["songList"]
-          for (let i = 0; i < orderedList.length; i++) {
-            let songName = orderedList[i].name
-            for (let j = 0; j < this.state.currentQueue.length; j++) {
-              if (this.state.currentQueue[j].name === songName) {
-                newQueue.push(this.state.currentQueue[j])
-              }
-            }
-          }
-          this.setState({ currentQueue: newQueue })
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-  }
-
-  updateBackendQueue2 = () => {
-    let orderedList = []
-    let newQueue = []
-    let tempUsers = []
-    console.log(this.state.userList)
-    const toSend = {
-      songs: this.state.currentQueue,
-      roomCode: this.state.code
-    }
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-        'Access-Control-Allow-Origin': '*',
-      }
-    }
-    axios.post(
-        "http://localhost:4567/queue",
-        toSend,
-        config
-    )
-        .then(response => {
-          // console.log("THIS IS THE BACKEND QUEUE", response)
-          orderedList = response.data["songList"]
-          tempUsers = response.data["userList"]
-          // for (let i = 0; i < orderedList.length; i++) {
-          //   let songName = orderedList[i].name
-          //   for (let j = 0; j < this.state.currentQueue.length; j++) {
-          //     if (this.state.currentQueue[j].name === songName) {
-          //       newQueue.push(this.state.currentQueue[j])
-          //     }
-          //   }
-          // }
-          // this.setState({ currentQueue: newQueue })
-          this.setState({currentQueue: orderedList})
-          this.setState({userList: tempUsers})
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-  }
-
   setUpRoom(val) {
-    console.log(this.state.userQuery)
     const toSend = {
-      roomCode: val,
-      hostName: this.state.userQuery
+      roomCode: val
     }
     let config = {
       headers: {
@@ -367,7 +276,7 @@ class SpotHouse extends Component {
         config
     )
         .then(response => {
-          console.log("USERLIST", response.data["userList"])
+          console.log(response)
         })
         .catch(function (error) {
           console.log(error);
@@ -389,8 +298,7 @@ class SpotHouse extends Component {
     this.setState({inRoom: true})
     console.log(this.state.numberQuery)
     const toSend = {
-      query: this.state.numberQuery,
-      guestName: this.state.userQuery
+      query: this.state.numberQuery
     }
     let config = {
       headers: {
@@ -404,10 +312,9 @@ class SpotHouse extends Component {
         config
     )
         .then(response => {
-          console.log("USERLIST", response.data["userList"])
-          // console.log(response.data["exists"])
-          // console.log(response.data["code"])
-          // console.log(response.data["backendSongs"])
+          console.log(response.data["exists"])
+          console.log(response.data["code"])
+          console.log(response.data["backendSongs"])
           orderedList = response.data["backendSongs"]
           let cVal = response.data["code"]
           this.setState({code: cVal})
@@ -434,8 +341,6 @@ class SpotHouse extends Component {
           )}
           {this.state.token && !this.state.inRoom && (
             <>
-              <TextBox label="Enter Username:" force={this.state.userQuery} onChange={this.changeUserQuery.bind(this)} />
-              <br></br>
               <AwesomeButton type="primary" className="btn btn--search" onPress={() => { this.createRoom() }}>Create Room</AwesomeButton>
               <br></br>
               <TextBox label="Enter Room Number:" force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
@@ -449,11 +354,7 @@ class SpotHouse extends Component {
           }
             {this.state.token && this.state.inRoom && this.state.isCreated && (
               <>
-                <h4>Username: {this.state.userQuery} </h4>
-                <h4>Room Code: {this.state.code} </h4>
-                <br></br>
-                Users List:
-                {this.state.userList.map(item => <p>{item.username}</p>)}
+                <h4>Code: {this.state.code} </h4>
                 <br></br>
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
@@ -485,6 +386,7 @@ class SpotHouse extends Component {
                           {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>)}
                       </>
                     )}
+
                   </div>
                 </div>
               </>
@@ -493,12 +395,7 @@ class SpotHouse extends Component {
             
             {this.state.token && this.state.inRoom && !this.state.isCreated && (
               <>
-                <h4>Username: {this.state.userQuery} </h4>
-                <h4>Room Code: {this.state.code} </h4>
-                <br></br>
-                Users List:
-                {this.state.userList.map(item => <p>{item.username}</p>)}
-                <br></br>
+
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
                 <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
