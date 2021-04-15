@@ -118,6 +118,7 @@ public final class Main {
     Spark.post("/setup", new SetupHandler());
     Spark.post("/join", new JoinHandler());
     Spark.post("/remove", new RemoveHandler());
+    Spark.post("/getBackQueue", new GetQueueHandler());
   }
 
   /**
@@ -153,7 +154,20 @@ public final class Main {
         }
       }
       songs.put(code, tempList);
+      System.out.println("Song removed!");
+      System.out.println(songs.get(code));
       Map<String, Object> variables = ImmutableMap.of("songSet", songSet);
+      return GSON.toJson(variables);
+    }
+  }
+
+  private static class GetQueueHandler implements Route {
+    public Object handle(Request request, Response response) throws Exception {
+      JSONObject data = new JSONObject((request.body()));
+      String roomCode = data.getString("roomCode");
+      int code = Integer.parseInt(roomCode);
+
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -164,7 +178,8 @@ public final class Main {
       JSONArray songsJSON = data.getJSONArray("songs");
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-      //System.out.println(songs);
+
+
       ArrayList<String> songList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
       ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
@@ -192,11 +207,13 @@ public final class Main {
       missingFromBackendSet.removeAll(songSet);
       // update songSet to contain songs in both frontend and backend
       songSet = totalSongSet;
-      // update map of songs to include this new song
+      // update map of songs to include  e new songs
       for (ArrayList<String> x : tempSongList) {
         if (missingFromFrontendSet.contains(x.get(3)) || missingFromBackendSet.contains(x.get(3))) {
+          System.out.println("Song added!");
           Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), "NA", 0);
           songs.get(code).add(newSong);
+          System.out.println(songs.get(code));
         }
       }
       Set<String> repeated = new HashSet<>();
@@ -207,7 +224,7 @@ public final class Main {
           repeated.add(element.getName());
         }
       }
-      songs.put(code, noRepeats);
+      songs.put(code, noRepeats
       System.out.println(songs.get(code));
       Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "userList", users.get(code));
       return GSON.toJson(variables);
@@ -290,6 +307,7 @@ public final class Main {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       String roomCode = data.getString("roomCode");
+      System.out.println("new room created: " + roomCode);
       int code = Integer.parseInt(roomCode);
       String hostName = data.getString("hostName");
       System.out.println(hostName);
