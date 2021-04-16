@@ -424,6 +424,7 @@ class SpotHouse extends Component {
 
   render() {
     return (
+      <>
       <div className="App">
         <header className="App-header">
           {!this.state.token && !this.state.inRoom && !this.state.usernameSet && (
@@ -594,6 +595,7 @@ class SpotHouse extends Component {
           ref={(el) => { this.endPage = el; }}>
         </div>
       </div>
+      </>
     );
   }
 }
