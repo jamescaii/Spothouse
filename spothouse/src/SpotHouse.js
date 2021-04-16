@@ -48,6 +48,7 @@ class SpotHouse extends Component {
       userQuery: "",
       userList: [],
       usernameSet: false,
+      go: false,
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -77,7 +78,6 @@ class SpotHouse extends Component {
         token: _token
       });
       this.getTopTracks(_token);
-      this.getCurrentlyPlaying(_token);
     }
 
     // set interval for polling every .5 seconds
@@ -93,9 +93,8 @@ class SpotHouse extends Component {
 
   tick() {
     if (this.state.token) {
-      this.getCurrentlyPlaying(this.state.hostToken);
       if (this.state.inRoom) {
-        // console.log(window.songqueue)
+        this.getCurrentlyPlaying(this.state.hostToken);
         this.retrieveBackendQueue();
         this.getUsersList();
         if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
@@ -172,17 +171,17 @@ class SpotHouse extends Component {
         });
   }
 
-  addToSpotifyQueue = (token, songUri) => {
+  addToSpotifyQueue = async (token, songUri) => {
     let toAdd = encodeURIComponent(songUri.trim())
     // Make a call using the token
-    $.ajax({
+    await $.ajax({
       url: "https://api.spotify.com/v1/me/player/queue?uri=" + toAdd,
       type: "POST",
       beforeSend: xhr => {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
       },
       success: data => {
-        console.log("Song URI", songUri)
+        this.setState({go: true})
       }
     });
   }
@@ -204,7 +203,6 @@ class SpotHouse extends Component {
         config
     )
         .then(response => {
-          console.log(response)
         })
         .catch(function (error) {
           console.log(error);
@@ -234,7 +232,6 @@ class SpotHouse extends Component {
         //console.log(data)
         // Checks if the data is not empty
         if (data) {
-          console.log(data)
           this.setState({
             searchResults: data.tracks.items.map((item) => ({
               name: item.name,
@@ -318,19 +315,31 @@ class SpotHouse extends Component {
     let clickedName = e.currentTarget.textContent.split(" -, ")[1]
     let clickedURI = e.currentTarget.textContent.split(" -, ")[2]
     let clickedArt = e.currentTarget.textContent.split(" -, ")[3]
-    this.setState({ clickedSongURI: clickedURI })
-    let joined = window.songqueue.concat({
-      name: clickedName,
-      artist: clickedArtist,
-      artwork: clickedArt,
-      uri: clickedURI,
-    });
-    if (joined) {
-      window.songqueue = joined
-      this.addBackendQueue()
+    let found = false
+    for (let i = 0; i < window.songqueue.length; i++) {
+      if (window.songqueue[i].uri === clickedURI) {
+        found = true
+        alert("song already added!")
+        break
+      }
     }
-    this.setState({ count: this.state.count + 1 })
-    console.log("added!")
+    if (!found) {
+      this.setState({ clickedSongURI: clickedURI })
+      var joined = window.songqueue.concat({
+        name: clickedName,
+        artist: clickedArtist,
+        artwork: clickedArt,
+        uri: clickedURI,
+      });
+      if (joined) {
+        window.songqueue = joined
+        this.addBackendQueue()
+      }
+
+      this.setState({ count: this.state.count + 1 })
+      console.log("added!")
+
+    }
   }
 
   getUsersList = () => {
@@ -377,7 +386,7 @@ class SpotHouse extends Component {
         config
     )
         .then(response => {
-          console.log("USERLIST", response.data["userList"])
+          //console.log("USERLIST", response.data["userList"])
         })
         .catch(function (error) {
           console.log(error);
@@ -393,9 +402,32 @@ class SpotHouse extends Component {
     this.setUpRoom(randomCode)
   }
 
+  skipSong() {
+    if (window.songqueue.length > 0 && this.state.isCreated) {
+      let songUri = window.songqueue.shift().uri;
+      this.addToSpotifyQueue(this.state.token, songUri)
+      this.removeFromBackend(songUri)
+      if (this.state.go) this.skipCurrentlyPlaying(this.state.token)
+      this.setState({go: false})
+    }
+  }
+
+  async skipCurrentlyPlaying(token) {
+    // Make a call using the token
+    await $.ajax({
+      url: "https://api.spotify.com/v1/me/player/next",
+      type: "POST",
+      beforeSend: xhr => {
+        xhr.setRequestHeader("Authorization", "Bearer " + token);
+      },
+      success: data => {
+      }
+    });
+
+  }
+
   joinRoom(numberQuery) {
     let orderedList = []
-    let newQueue = []
     const toSend = {
       query: numberQuery,
       guestName: this.state.userQuery
@@ -469,12 +501,12 @@ class SpotHouse extends Component {
           }
             {this.state.token && this.state.inRoom && this.state.isCreated && (
               <>
-                <div class="row">
-                  <div class="widercolumn">
+                <div className="row">
+                  <div className="widercolumn">
                     <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3><h3 className="username" style={{fontSize: "large"}}>Username: {this.state.userQuery} </h3>
                     <br></br>
                   </div>
-                  <div class="widercolumn">
+                  <div className="widercolumn">
                     <h3 className="userslist" style={{fontSize: "large"}}>
                     Users List:</h3>
                     {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
@@ -487,28 +519,40 @@ class SpotHouse extends Component {
                   this.getSearch(this.state.token, this.state.searchQuery)
                 }}>Submit</AwesomeButton>
                 <br></br>
-                <p style={{ fontSize: "small" }}>Click on a song to add it to the queue!</p>
+                <p style={{ fontSize: "small" }}>Click on a song to add it to the queue! (duplicates not allowed)</p>
                 <br></br>
-                <div class="row">
-                  <div class="column">
+                <div className="row">
+                  <div className="column">
                     {this.state.token && !this.state.no_top_data && (
                       <>
                         <h4>Your top tracks:</h4>
                         <br></br>
-                        {this.state.topTracks.map(item => <p className="search" onClick={item => this.clickResult(item)}>
-                          {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>)}
+                        <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
+                          <tbody>
+                          {this.state.topTracks.map(item =>
+                            <tr id="tableresult" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
+                            {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>
+                              </tr>)}
+
+                          </tbody>
+                        </table>
                         <br></br>
                       </>
                     )}
                   </div>
-                  <div class="column">
+                  <div className="column">
                     <hr width="300" style={{ visibility: "hidden" }} />
                     {this.state.searchResults[0].name && (
                       <>
                         <h4>Search results:</h4>
                         <br></br>
-                        {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>
-                          {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>)}
+                        <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
+                          <tbody>
+                            {this.state.searchResults.map(item => <tr id="tableresult" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
+                              {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p></tr>)}
+
+                          </tbody>
+                        </table>
                       </>
                     )}
                   </div>
@@ -519,12 +563,12 @@ class SpotHouse extends Component {
             
             {this.state.token && this.state.inRoom && !this.state.isCreated && (
               <>
-              <div class="row">
-                <div class="widercolumn">
+              <div className="row">
+                <div className="widercolumn">
                   <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3><h3 className="username" style={{fontSize: "large"}}>Username: {this.state.userQuery} </h3>
                   <br></br>
                 </div>
-                <div class="widercolumn">
+                <div className="widercolumn">
                   <h3 className="userslist" style={{fontSize: "large"}}>
                   Users List:</h3>
                   {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
@@ -539,8 +583,8 @@ class SpotHouse extends Component {
                 <br></br>
                 <p style={{ fontSize: "small" }}>Click on a song to add it to the queue!</p>
                 <br></br>
-                <div class="row">
-                  <div class="column">
+                <div className="row">
+                  <div className="column">
                     {this.state.token && !this.state.no_top_data && (
                       <>
                         <h4>Your top tracks:</h4>
@@ -551,7 +595,7 @@ class SpotHouse extends Component {
                       </>
                     )}
                   </div>
-                  <div class="column">
+                  <div className="column">
                     <hr width="300" style={{ visibility: "hidden" }} />
                     {this.state.searchResults[0].name && (
                       <>
@@ -576,11 +620,20 @@ class SpotHouse extends Component {
               is_playing={this.state.is_playing}
               progress_ms={this.state.progress_ms}
             />
-
+              {this.state.isCreated && (
+                <>
+                <AwesomeButton type="primary" className="btn btn--skip" onPress={() => {
+                  this.skipSong()
+                }}>≫</AwesomeButton>
+                <br></br>
+                <br></br>
+              </>
+              )}
             <Queue
               songQueue={window.songqueue}
               roomCode={this.state.code}
               user={this.state.userQuery}
+              isHost={this.state.isCreated}
             />
             <br></br>
           </>
@@ -592,6 +645,7 @@ class SpotHouse extends Component {
               songQueue={window.songqueue}
               roomCode={this.state.code}
               user={this.state.userQuery}
+              isHost={this.state.isCreated}
             />
             <br></br>
 

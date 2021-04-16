@@ -92,6 +92,22 @@ tr td {
   text-align: center;
   width: 50%;
 }
+table, th, td {
+  border: 1px solid black;
+}
+table.tblbtn {
+  background-color: #116e51;
+  width: 100%;
+}
+
+tr {
+  
+  width: 100%;
+}
+tr:hover{  
+  background-color: #1f242b;
+  cursor: pointer;
+}
 
 .widercolumn {
   float: left;
@@ -144,6 +160,7 @@ input[type=text] {
   color: #333;
 }
 
+
 .btn--login {
   margin: 0 auto;
 }
@@ -152,6 +169,35 @@ input[type=text] {
   margin: 0 auto;
   font-size: .5em;
 }
+
+.btn--skip   {
+  margin: 0 auto;
+  font-size: .75em;
+  padding: 0.5em 0.75em;
+  border: 0.2em solid #4070d1;
+  color: #4070d1;
+}
+
+.btn--skip:hover {
+  background: #1ecd967e;
+  border: 0.2em solid #1ecd967e;
+  color: rgb(0, 0, 0);
+}
+
+.btn--remove   {
+  margin: 0 auto;
+  border-radius: 2em;
+  font-size: .5em;
+  border: 0.2em solid red;
+  color: red;
+  padding: 0.5em 0.7em;
+}
+
+.btn--remove:hover {
+  background: red;
+  color: #333;
+}
+
 /** Background **/
 
 .background {

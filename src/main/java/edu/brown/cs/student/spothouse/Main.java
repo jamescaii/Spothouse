@@ -114,8 +114,8 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
-    Spark.post("/", new LobbyGUI(), freeMarker);
-    Spark.post("/add", new addHandler());
+    Spark.get("/", new LobbyGUI(), freeMarker);
+    Spark.post("/add", new AddHandler());
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupHandler());
     Spark.post("/join", new JoinHandler());
@@ -190,7 +190,7 @@ public final class Main {
     }
   }
 
-  private static class addHandler implements Route {
+  private static class AddHandler implements Route {
     public Object handle(Request request, Response response) throws Exception {
       JSONObject data = new JSONObject((request.body()));
       JSONArray songsJSON = data.getJSONArray("songs");

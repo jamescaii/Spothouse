@@ -1,11 +1,12 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 import './Queue.css';
+import Button from 'react-bootstrap/Button'
 
 const Queue = props => {
     const clickedMap = useRef([])
-    let code = props.roomCode
     let userName = props.user
+    let roomCode = props.roomCode
 
     const handleUpvote = async (event) => {
         let songName = event.target.id
@@ -25,8 +26,8 @@ const Queue = props => {
             toChange: songName,
             isIncrease: true,
             isReset: false,
-            rCode: code,
             user: userName,
+            rCode: roomCode,
         }
         let config = {
             headers: {
@@ -67,8 +68,8 @@ const Queue = props => {
             toChange: songName,
             isIncrease: false,
             isReset: false,
-            rCode: code,
             user: userName,
+            rCode: roomCode,
         }
         let config = {
             headers: {
@@ -126,6 +127,39 @@ const Queue = props => {
             return { fill: "#f48024" }
         }
     }
+    function renderRemove(uri) {
+        if (props.isHost) {
+            return (
+            <td align="center">
+                <Button className="btn btn--remove" size="sm" onClick={() => removeFromBackend(uri)}>
+                X
+                </Button>{' '}
+            </td>
+            );
+        }
+    }
+    function removeFromBackend(uri) {
+      const toSend = {
+        songUri: uri,
+        code: roomCode
+      }
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          'Access-Control-Allow-Origin': '*',
+        }
+      }
+      axios.post(
+          "http://localhost:4567/remove",
+          toSend,
+          config
+      )
+          .then(response => {
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    }
 
     return (
         <div className="App"><center>
@@ -135,11 +169,12 @@ const Queue = props => {
                 <table id="table" className="table" border="1px" table-layour="fixed" bordercolor="black">
                     <tbody>
                     {props.songQueue.map(item =>
-                        <tr>
+                        <tr key={item.name}>
+                            {renderRemove(item.uri)}
                             <td align="center">
                                 <span className="voteup" onClick={handleUpvote}>
-                                  <svg width="36" height="36">
-                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name}></path>
+                                  <svg width="36" height="36" >
+                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name} ></path>
                                   </svg>
                                 </span>
                                 <span className="votedown" onClick={handleDownvote}>
@@ -148,7 +183,7 @@ const Queue = props => {
                                   </svg>
                                 </span>
                             </td>
-                            <td align="center"><img src={item.artwork} width="50" align="center"/></td>
+                            <td align="center"><img src={item.artwork} width="50" align="center" alt="album art"/></td>
                             <td align="center" style={{fontSize: 13, padding: 10}}>{item.name}</td>
                         </tr>
                     )
