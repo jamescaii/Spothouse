@@ -368,10 +368,15 @@ class SpotHouse extends Component {
   }
 
   setUpRoom(val) {
-    console.log(this.state.userQuery)
+    let username = this.state.userQuery.trim()
+    if (username === "") {      
+      let randomCode = Math.floor(10000 + Math.random() * (99999 - 10000));
+      username = "host#" + randomCode
+      this.setState({userQuery: username})
+    }
     const toSend = {
       roomCode: val,
-      hostName: this.state.userQuery,
+      hostName: username,
       hostToken: this.state.token
     }
     let config = {
@@ -428,9 +433,15 @@ class SpotHouse extends Component {
 
   joinRoom(numberQuery) {
     let orderedList = []
+    let username = this.state.userQuery.trim()
+    if (username === "") {      
+      let randomCode = Math.floor(10000 + Math.random() * (99999 - 10000));
+      username = "guest#" + randomCode
+      this.setState({userQuery: username})
+    }
     const toSend = {
       query: numberQuery,
-      guestName: this.state.userQuery
+      guestName: username
     }
     let config = {
       headers: {
@@ -581,7 +592,7 @@ class SpotHouse extends Component {
                   this.getSearch(this.state.token, this.state.searchQuery)
                 }}>Submit</AwesomeButton>
                 <br></br>
-                <p style={{ fontSize: "small" }}>Click on a song to add it to the queue!</p>
+                <p style={{ fontSize: "small" }}>Click on a song to add it to the queue! (duplicates not allowed)</p>
                 <br></br>
                 <div className="row">
                   <div className="column">
@@ -589,8 +600,15 @@ class SpotHouse extends Component {
                       <>
                         <h4>Your top tracks:</h4>
                         <br></br>
-                        {this.state.topTracks.map(item => <p className="search" onClick={item => this.clickResult(item)}>
-                          {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>)}
+                        <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
+                          <tbody>
+                          {this.state.topTracks.map(item =>
+                            <tr id="tableresult" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
+                            {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>
+                              </tr>)}
+
+                          </tbody>
+                        </table>
                         <br></br>
                       </>
                     )}
@@ -601,11 +619,15 @@ class SpotHouse extends Component {
                       <>
                         <h4>Search results:</h4>
                         <br></br>
-                        {this.state.searchResults.map(item => <p className="search" onClick={item => this.clickResult(item)}>
-                          {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>)}
+                        <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
+                          <tbody>
+                            {this.state.searchResults.map(item => <tr id="tableresult" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
+                              {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p></tr>)}
+
+                          </tbody>
+                        </table>
                       </>
                     )}
-
                   </div>
                 </div>
               </>
