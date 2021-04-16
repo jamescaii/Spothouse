@@ -95,7 +95,7 @@ class SpotHouse extends Component {
     if (this.state.token) {
       this.getCurrentlyPlaying(this.state.hostToken);
       if (this.state.inRoom) {
-        console.log(window.songqueue)
+        // console.log(window.songqueue)
         this.retrieveBackendQueue();
         this.getUsersList();
         if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
@@ -117,6 +117,7 @@ class SpotHouse extends Component {
   }
   
   retrieveBackendQueue = () => {
+    let listUser = []
     const toSend = {
       roomCode: this.state.code
     }
@@ -133,6 +134,9 @@ class SpotHouse extends Component {
     )
         .then(response => {
           window.songqueue = response.data["songList"]
+          listUser = response.data["userList"]
+          this.setState({userList: listUser})
+          console.log(this.state.userList)
         })
         .catch(function (error) {
           console.log(error);
@@ -145,7 +149,8 @@ class SpotHouse extends Component {
     console.log(window.songqueue)
     const toSend = {
       songs: window.songqueue,
-      roomCode: this.state.code
+      roomCode: this.state.code,
+      user: this.state.userQuery
     }
     let config = {
       headers: {
@@ -314,7 +319,7 @@ class SpotHouse extends Component {
     let clickedURI = e.currentTarget.textContent.split(" -, ")[2]
     let clickedArt = e.currentTarget.textContent.split(" -, ")[3]
     this.setState({ clickedSongURI: clickedURI })
-    var joined = window.songqueue.concat({
+    let joined = window.songqueue.concat({
       name: clickedName,
       artist: clickedArtist,
       artwork: clickedArt,
@@ -324,7 +329,6 @@ class SpotHouse extends Component {
       window.songqueue = joined
       this.addBackendQueue()
     }
-
     this.setState({ count: this.state.count + 1 })
     console.log("added!")
   }
@@ -576,6 +580,7 @@ class SpotHouse extends Component {
             <Queue
               songQueue={window.songqueue}
               roomCode={this.state.code}
+              user={this.state.userQuery}
             />
             <br></br>
           </>
@@ -586,6 +591,7 @@ class SpotHouse extends Component {
             <Queue
               songQueue={window.songqueue}
               roomCode={this.state.code}
+              user={this.state.userQuery}
             />
             <br></br>
 

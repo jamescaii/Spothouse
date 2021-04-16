@@ -169,8 +169,23 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-
-      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
+      ArrayList<User2> tempList = users.get(code);
+      Collections.sort(tempList);
+      int listLength = tempList.size();
+      if (listLength >= 4) {
+        int topUsersLength = listLength / 4;
+        int start = 0;
+        for (User2 u: tempList) {
+          if (start < topUsersLength) {
+            u.setOnFire(true);
+          } else {
+            u.setOnFire(false);
+          }
+          start++;
+        }
+      }
+      users.put(code, tempList);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "userList", users.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -181,6 +196,8 @@ public final class Main {
       JSONArray songsJSON = data.getJSONArray("songs");
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
+      String userName = data.getString("user");
+      System.out.println("Username is: " + userName);
       Set<String> frontSongSet = new HashSet<>();
       ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
       for (int i = 0; i < songsJSON.length(); i++) {
@@ -200,10 +217,9 @@ public final class Main {
       for (ArrayList<String> x : tempSongList) {
         if (!songSet.contains(x.get(3))) {
           System.out.println("Song added!");
-          Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), "NA", 0);
+          Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), userName, 0);
           songs.get(code).add(newSong);
           System.out.println(songs.get(code));
-
         }
       }
 
@@ -239,21 +255,48 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String toChange = data.getString("toChange");
       String roomCode = data.getString("rCode");
+      String userName = data.getString("user");
+      System.out.println(userName + " voted " + toChange);
       int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
       for (Song2 s: songs.get(code)) {
         if (s.getName().equals(toChange)) {
+          // this gets finds the score of the user that upvoted the song and applies a sigmoid function to it
+          double voterScore = 0;
+          for (User2 user: users.get(code)) {
+            if (userName.equals(user.getUsername())) {
+              voterScore = user.getNormalizedScore();
+            }
+          }
           if (isIncrease) {
-            s.addVote(1);
+            System.out.println("Increased Score: " + voterScore);
+            s.addVote(voterScore);
+            // gets the requester of the song and adds the normalized score of the voter to it
+            String requester = s.getRequester();
+            for (User2 user: users.get(code)) {
+              if (requester.equals(user.getUsername())) {
+                user.addScore(voterScore);
+                break;
+              }
+            }
           } else {
-            s.subVote(1);
+            System.out.println("Decreased Score: " + voterScore);
+            s.subVote(voterScore);
+            // gets the requester of the song and subtracts the normalized score of the voter to it
+            String requester = s.getRequester();
+            for (User2 user: users.get(code)) {
+              if (requester.equals(user.getUsername())) {
+                user.subScore(voterScore);
+                break;
+              }
+            }
           }
         }
       }
       ArrayList<Song2> tempList = songs.get(code);
       Collections.sort(tempList);
       songs.put(code, tempList);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "name", toChange);
+      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "name", toChange, "userList", users.get(code));
       return GSON.toJson(variables);
     }
   }

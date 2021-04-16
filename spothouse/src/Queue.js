@@ -5,6 +5,7 @@ import './Queue.css';
 const Queue = props => {
     const clickedMap = useRef([])
     let code = props.roomCode
+    let userName = props.user
 
     const handleUpvote = async (event) => {
         let songName = event.target.id
@@ -25,6 +26,7 @@ const Queue = props => {
             isIncrease: true,
             isReset: false,
             rCode: code,
+            user: userName,
         }
         let config = {
             headers: {
@@ -38,6 +40,7 @@ const Queue = props => {
             config
         )
             .then(response => {
+                console.log(response.data["userList"])
             })
             .catch(function (error) {
                 console.log(error);
@@ -65,6 +68,7 @@ const Queue = props => {
             isIncrease: false,
             isReset: false,
             rCode: code,
+            user: userName,
         }
         let config = {
             headers: {
@@ -78,6 +82,7 @@ const Queue = props => {
             config
         )
             .then(response => {
+                console.log(response.data["userList"])
             })
             .catch(function (error) {
                 console.log(error);

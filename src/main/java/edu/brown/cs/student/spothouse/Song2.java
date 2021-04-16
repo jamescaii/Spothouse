@@ -6,7 +6,7 @@ public class Song2 implements Comparable<Song2> {
   private String artist;
   private String artwork;
   private String uri;
-  private int votes;
+  private double votes;
   public Song2(String name, String artist, String artwork, String uri, String requester, int votes) {
     this.name = name;
     this.artist = artist;
@@ -30,14 +30,14 @@ public class Song2 implements Comparable<Song2> {
   public String getRequester() {
     return requester;
   }
-  public int getVotes() {
+  public double getVotes() {
     return votes;
   }
-  public void addVote(int vote) {
+  public void addVote(double vote) {
     // when we add the vote we want to look at the user score to scale it
     votes += vote;
   }
-  public void subVote(int vote) {
+  public void subVote(double vote) {
     // when we add the vote we want to look at the user score to scale it
     votes -= vote;
   }
