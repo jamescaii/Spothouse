@@ -198,7 +198,6 @@ public final class Main {
       int code = Integer.parseInt(roomCode);
       String userName = data.getString("user");
       System.out.println("Username is: " + userName);
-      Set<String> frontSongSet = new HashSet<>();
       ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
       for (int i = 0; i < songsJSON.length(); i++) {
         ArrayList<String> temp = new ArrayList<>();
@@ -212,7 +211,6 @@ public final class Main {
         temp.add(artwork);
         temp.add(uri);
         tempSongList.add(temp);
-        frontSongSet.add(uri);
       }
       for (ArrayList<String> x : tempSongList) {
         if (!songSet.contains(x.get(3))) {
@@ -220,11 +218,9 @@ public final class Main {
           Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), userName, 0);
           songs.get(code).add(newSong);
           System.out.println(songs.get(code));
+          songSet.add(x.get(3));
         }
       }
-
-      // update songSet to contain songs in both frontend and backend
-      songSet.addAll(frontSongSet);
       Set<String> repeated = new HashSet<>();
       
       ArrayList<Song2> noRepeats = new ArrayList<>();
