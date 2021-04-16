@@ -15,6 +15,7 @@ class SpotHouse extends Component {
     super();
     this.state = {
       token: null,
+      hostToken: null,
       inRoom: false,
       isCreated: false,
       item: {
@@ -92,7 +93,7 @@ class SpotHouse extends Component {
 
   tick() {
     if (this.state.token) {
-      this.getCurrentlyPlaying(this.state.token);
+      this.getCurrentlyPlaying(this.state.hostToken);
       if (this.state.inRoom) {
         console.log(window.songqueue)
         this.retrieveBackendQueue();
@@ -357,7 +358,8 @@ class SpotHouse extends Component {
     console.log(this.state.userQuery)
     const toSend = {
       roomCode: val,
-      hostName: this.state.userQuery
+      hostName: this.state.userQuery,
+      hostToken: this.state.token
     }
     let config = {
       headers: {
@@ -383,6 +385,7 @@ class SpotHouse extends Component {
     this.setState({code: randomCode})
     this.setState({isCreated: true})
     this.setState({inRoom: true})
+    this.setState({hostToken: this.state.token})
     this.setUpRoom(randomCode)
   }
 
@@ -407,6 +410,7 @@ class SpotHouse extends Component {
         .then(response => {
           console.log("USERLIST", response.data["userList"])
           orderedList = response.data["backendSongs"]
+          this.setState({hostToken: response.data["hostToken"]})
           let cVal = response.data["code"]
           this.setState({code: cVal})
           window.songqueue = orderedList
