@@ -608,7 +608,7 @@ class SpotHouse extends Component {
                 <>
                 <AwesomeButton type="primary" className="btn btn--skip" onPress={() => {
                   this.skipSong()
-                }}>≫</AwesomeButton>
+                }}>≫</AwesomeButton>             
                 <br></br>
                 <br></br>
               </>
@@ -616,6 +616,7 @@ class SpotHouse extends Component {
             <Queue
               songQueue={window.songqueue}
               roomCode={this.state.code}
+              isHost={this.state.isCreated}
             />
             <br></br>
           </>
@@ -626,6 +627,7 @@ class SpotHouse extends Component {
             <Queue
               songQueue={window.songqueue}
               roomCode={this.state.code}
+              isHost={this.state.isCreated}
             />
             <br></br>
 

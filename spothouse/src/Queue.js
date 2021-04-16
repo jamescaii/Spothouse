@@ -122,6 +122,17 @@ const Queue = props => {
             return { fill: "#f48024" }
         }
     }
+    function renderRemove(uri) {
+        if (props.isHost) {
+            return (
+            <td align="center">
+                <Button className="btn btn--remove" size="sm" onClick={() => removeFromBackend(uri)}>
+                X
+                </Button>{' '}
+            </td>
+            );
+        }
+    }
     function removeFromBackend(uri) {
       const toSend = {
         songUri: uri,
@@ -154,11 +165,7 @@ const Queue = props => {
                     <tbody>
                     {props.songQueue.map(item =>
                         <tr key={item.name}>
-                            <td align="center">
-                                <Button className="btn btn--remove" size="sm" onClick={() => removeFromBackend(item.uri)}>
-                                X
-                                </Button>{' '}
-                            </td>
+                            {renderRemove(item.uri)}
                             <td align="center">
                                 <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36" >
