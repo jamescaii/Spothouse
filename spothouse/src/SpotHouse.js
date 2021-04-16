@@ -322,7 +322,7 @@ class SpotHouse extends Component {
     });
     if (joined) {
       window.songqueue = joined
-      this.addBackendQueue()
+      this.updateBackendQueue()
     }
 
     this.setState({ count: this.state.count + 1 })
