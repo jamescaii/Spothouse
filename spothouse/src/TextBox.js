@@ -33,7 +33,7 @@ function TextBox(props) {
 
   return (
     <div className="TextBox">
-      <div>{props.label}</div>
+      <div style={{fontSize:"large"}}>{props.label}</div>
       <input 
         type={'text'}
         value={textInp}

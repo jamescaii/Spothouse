@@ -49,6 +49,26 @@ body {
   font-size: 3vmin;
 }
 
+h3.roomcode {
+  margin-left: 3em;
+  align-self: flex-start;
+}
+
+h3.username {
+  margin-left: 3em;
+  align-self: flex-start;
+}
+
+h3.userslist {
+  margin-right: 3em;
+  align-self: flex-end;
+}
+
+p.userslist {
+  margin-right: 3em;
+  align-self: flex-end;
+}
+
 .search {
   font-size: small;
   position: relative;
@@ -73,6 +93,10 @@ tr td {
   width: 50%;
 }
 
+.widercolumn {
+  float: left;
+  width: 25vw;
+}
 /* Clear floats after the columns */
 .row:after {
   content: "";

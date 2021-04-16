@@ -39,14 +39,14 @@ class SpotHouse extends Component {
         }
       ],
       clickedSongURI: "",
-      currentQueue: [],
       topTracks: [],
       count: 0,
       added: false,
       code: 0,
       numberQuery: "",
       userQuery: "",
-      userList: []
+      userList: [],
+      usernameSet: false,
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -89,12 +89,14 @@ class SpotHouse extends Component {
   }
 
 
+
   tick() {
     if (this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
       if (this.state.inRoom) {
         console.log(window.songqueue)
         this.retrieveBackendQueue();
+        this.getUsersList();
         if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
           this.setState({ added: true })
           console.log("almost done")
@@ -136,8 +138,10 @@ class SpotHouse extends Component {
         });
   }
 
+
   updateBackendQueue = () => {
     let orderedList = []
+    console.log(window.songqueue)
     const toSend = {
       songs: window.songqueue,
       roomCode: this.state.code
@@ -149,7 +153,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/queue",
+        "http://localhost:4567/add",
         toSend,
         config
     )
@@ -324,55 +328,9 @@ class SpotHouse extends Component {
     console.log("added!")
   }
 
-  updateBackendQueue = () => {
-    let current = []
-    let orderedList = []
-    let newQueue = []
-    for (let i = 0; i < this.state.currentQueue.length; i++) {
-      let name = this.state.currentQueue[i].name
-      current.push(name)
-    }
-    console.log(this.state.currentQueue)
-    const toSend = {
-      songs: current,
-      roomCode: this.state.code
-    }
-    let config = {
-      headers: {
-        "Content-Type": "application/json",
-        'Access-Control-Allow-Origin': '*',
-      }
-    }
-    axios.post(
-        "http://localhost:4567/queue",
-        toSend,
-        config
-    )
-        .then(response => {
-          // console.log("THIS IS THE BACKEND QUEUE", response)
-          orderedList = response.data["songList"]
-          for (let i = 0; i < orderedList.length; i++) {
-            let songName = orderedList[i].name
-            for (let j = 0; j < this.state.currentQueue.length; j++) {
-              if (this.state.currentQueue[j].name === songName) {
-                newQueue.push(this.state.currentQueue[j])
-              }
-            }
-          }
-          this.setState({ currentQueue: newQueue })
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-  }
-
-  updateBackendQueue2 = () => {
-    let orderedList = []
-    let newQueue = []
+  getUsersList = () => {
     let tempUsers = []
-    console.log(this.state.userList)
     const toSend = {
-      songs: this.state.currentQueue,
       roomCode: this.state.code
     }
     let config = {
@@ -382,24 +340,12 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/queue",
+        "http://localhost:4567/users",
         toSend,
         config
     )
         .then(response => {
-          // console.log("THIS IS THE BACKEND QUEUE", response)
-          orderedList = response.data["songList"]
           tempUsers = response.data["userList"]
-          // for (let i = 0; i < orderedList.length; i++) {
-          //   let songName = orderedList[i].name
-          //   for (let j = 0; j < this.state.currentQueue.length; j++) {
-          //     if (this.state.currentQueue[j].name === songName) {
-          //       newQueue.push(this.state.currentQueue[j])
-          //     }
-          //   }
-          // }
-          // this.setState({ currentQueue: newQueue })
-          this.setState({currentQueue: orderedList})
           this.setState({userList: tempUsers})
         })
         .catch(function (error) {
@@ -411,6 +357,7 @@ class SpotHouse extends Component {
     console.log(this.state.userQuery)
     const toSend = {
       roomCode: val,
+      hostName: this.state.userQuery
     }
     let config = {
       headers: {
@@ -442,11 +389,8 @@ class SpotHouse extends Component {
   joinRoom(numberQuery) {
     let orderedList = []
     let newQueue = []
-    this.setState({isCreated: false})
-    this.setState({inRoom: true})
-    console.log(this.state.numberQuery)
     const toSend = {
-      query: this.state.numberQuery,
+      query: numberQuery,
       guestName: this.state.userQuery
     }
     let config = {
@@ -462,14 +406,12 @@ class SpotHouse extends Component {
     )
         .then(response => {
           console.log("USERLIST", response.data["userList"])
-          // console.log(response.data["exists"])
-          // console.log(response.data["code"])
-          // console.log(response.data["backendSongs"])
           orderedList = response.data["backendSongs"]
           let cVal = response.data["code"]
           this.setState({code: cVal})
           window.songqueue = orderedList
-          //this.setState({currentQueue: orderedList})
+          this.setState({isCreated: false})
+          this.setState({inRoom: true})
         })
         .catch(function (error) {
           console.log(error);
@@ -480,7 +422,7 @@ class SpotHouse extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          {!this.state.token && !this.state.inRoom && (
+          {!this.state.token && !this.state.inRoom && !this.state.usernameSet && (
             <a
               className="btn btn--loginApp-link"
               href={`${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join(
@@ -490,28 +432,45 @@ class SpotHouse extends Component {
               Login to Spotify
             </a>
           )}
-          {this.state.token && !this.state.inRoom && (
+          
+          {this.state.token && !this.state.inRoom && !this.state.usernameSet && (
             <>
+                
               <TextBox label="Enter Username:" force={this.state.userQuery} onChange={this.changeUserQuery.bind(this)} />
+              <hr style={{ height: 10, visibility: "hidden" }} />
+              <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
+                this.setState({usernameSet: true})
+              }}>Submit Username</AwesomeButton>
               <br></br>
+          </>
+          )}
+          {this.state.token && !this.state.inRoom && this.state.usernameSet && (
+            <>
+
               <AwesomeButton type="primary" className="btn btn--search" onPress={() => { this.createRoom() }}>Create Room</AwesomeButton>
               <br></br>
-              <TextBox label="Enter Room Number:" force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
-                <hr style={{ height: 10, visibility: "hidden" }} />
                 <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
                   this.joinRoom(this.state.numberQuery)
                 }}>Join Room</AwesomeButton>
+                <hr style={{ height: 10, visibility: "hidden" }} />
+                <TextBox label="Enter Room Number:" style={{fontSize: "large"}} force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
               <br></br>
             </>
           )
           }
             {this.state.token && this.state.inRoom && this.state.isCreated && (
               <>
-                <h4>Username: {this.state.userQuery} </h4>
-                <h4>Room Code: {this.state.code} </h4>
-                <br></br>
-                Users List:
-                {this.state.userList.map(item => <p>{item.username}</p>)}
+                <div class="row">
+                  <div class="widercolumn">
+                    <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3><h3 className="username" style={{fontSize: "large"}}>Username: {this.state.userQuery} </h3>
+                    <br></br>
+                  </div>
+                  <div class="widercolumn">
+                    <h3 className="userslist" style={{fontSize: "large"}}>
+                    Users List:</h3>
+                    {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
+                  </div>
+                </div>
                 <br></br>
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
@@ -551,11 +510,17 @@ class SpotHouse extends Component {
             
             {this.state.token && this.state.inRoom && !this.state.isCreated && (
               <>
-                <h4>Username: {this.state.userQuery} </h4>
-                <h4>Room Code: {this.state.code} </h4>
-                <br></br>
-                Users List:
-                {this.state.userList.map(item => <p>{item.username}</p>)}
+              <div class="row">
+                <div class="widercolumn">
+                  <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3><h3 className="username" style={{fontSize: "large"}}>Username: {this.state.userQuery} </h3>
+                  <br></br>
+                </div>
+                <div class="widercolumn">
+                  <h3 className="userslist" style={{fontSize: "large"}}>
+                  Users List:</h3>
+                  {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
+                </div>
+              </div>
                 <br></br>
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
