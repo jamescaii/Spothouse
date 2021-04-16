@@ -160,6 +160,11 @@ input[type=text] {
   color: #333;
 }
 
+.votebtn:hover {
+  background: #1ecd97;
+  color: #333;
+}
+
 .btn--login {
   margin: 0 auto;
 }
@@ -168,6 +173,21 @@ input[type=text] {
   margin: 0 auto;
   font-size: .5em;
 }
+
+.btn--remove   {
+  margin: 0 auto;
+  border-radius: 2em;
+  font-size: .5em;
+  border: 0.2em solid red;
+  color: red;
+  padding: 0.5em 0.7em;
+}
+
+.btn--remove:hover {
+  background: red;
+  color: #333;
+}
+
 /** Background **/
 
 .background {

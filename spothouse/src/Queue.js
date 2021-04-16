@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import axios from 'axios';
 import './Queue.css';
+import Button from 'react-bootstrap/Button'
 
 const Queue = props => {
     const clickedMap = useRef([])
-    let code = props.roomCode
+    let roomCode = props.roomCode
 
     const handleUpvote = async (event) => {
         let songName = event.target.id
@@ -24,7 +25,7 @@ const Queue = props => {
             toChange: songName,
             isIncrease: true,
             isReset: false,
-            rCode: code,
+            rCode: roomCode,
         }
         let config = {
             headers: {
@@ -64,7 +65,7 @@ const Queue = props => {
             toChange: songName,
             isIncrease: false,
             isReset: false,
-            rCode: code,
+            rCode: roomCode,
         }
         let config = {
             headers: {
@@ -121,6 +122,28 @@ const Queue = props => {
             return { fill: "#f48024" }
         }
     }
+    function removeFromBackend(uri) {
+      const toSend = {
+        songUri: uri,
+        code: roomCode
+      }
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          'Access-Control-Allow-Origin': '*',
+        }
+      }
+      axios.post(
+          "http://localhost:4567/remove",
+          toSend,
+          config
+      )
+          .then(response => {
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    }
 
     return (
         <div className="App"><center>
@@ -132,14 +155,19 @@ const Queue = props => {
                     {props.songQueue.map(item =>
                         <tr key={item.name}>
                             <td align="center">
+                                <Button className="btn btn--remove" size="sm" onClick={() => removeFromBackend(item.uri)}>
+                                X
+                                </Button>{' '}
+                            </td>
+                            <td align="center">
                                 <span className="voteup" onClick={handleUpvote}>
-                                  <svg width="36" height="36">
-                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name}></path>
+                                  <svg width="36" height="36" >
+                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} className="votebtn" id={item.name} ></path>
                                   </svg>
                                 </span>
                                 <span className="votedown" onClick={handleDownvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 10h32L18 26 2 10z" style={getColorDown(item.name)} id={item.name}></path>
+                                    <path d="M2 10h32L18 26 2 10z" style={getColorDown(item.name)} className="votebtn" id={item.name}></path>
                                   </svg>
                                 </span>
                             </td>
