@@ -139,7 +139,7 @@ class SpotHouse extends Component {
   }
 
 
-  updateBackendQueue = () => {
+  addBackendQueue = () => {
     let orderedList = []
     console.log(window.songqueue)
     const toSend = {
@@ -321,7 +321,7 @@ class SpotHouse extends Component {
     });
     if (joined) {
       window.songqueue = joined
-      this.updateBackendQueue()
+      this.addBackendQueue()
     }
 
     this.setState({ count: this.state.count + 1 })
