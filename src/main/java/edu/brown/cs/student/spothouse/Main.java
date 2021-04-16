@@ -28,6 +28,7 @@ public final class Main {
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
   private static Set<String> songSet = new HashSet<>();
+  private static String hostToken = new String();
 
   /**
    * The initial method called when execution begins.
@@ -113,6 +114,7 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
+    Spark.post("/", new LobbyGUI(), freeMarker);
     Spark.post("/add", new addHandler());
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupHandler());
@@ -262,6 +264,7 @@ public final class Main {
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
       String hostName = data.getString("hostName");
+      hostToken = data.getString("hostToken");
       System.out.println("new room created: " + roomCode + " with host " + hostName);
       User2 newUser = new User2(hostName, true);
       ArrayList<User2> tempList = new ArrayList<>();
@@ -285,11 +288,7 @@ public final class Main {
       tempList.add(newUser);
       users.put(code, tempList);
       System.out.println(users.get(code).get(1).getUsername());
-      int inMap = 0;
-      if (songs.containsKey(code)) {
-        inMap = 1;
-      }
-      Map<String, Object> variables = ImmutableMap.of("name", "", "exists", inMap, "backendSongs",
+      Map<String, Object> variables = ImmutableMap.of("name", "", "hostToken", hostToken, "backendSongs",
               songs.get(code), "code", code, "userList", users.get(code));
       return GSON.toJson(variables);
     }
