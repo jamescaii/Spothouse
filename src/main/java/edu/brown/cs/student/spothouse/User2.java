@@ -55,7 +55,7 @@ public class User2 implements Comparable<User2> {
   }
 
   public double getNormalizedScore() {
-    return (1 / (1 + Math.pow(Math.E, (-1 * score))));
+    return (1 / (1 + Math.pow(Math.E, (-0.25 * score))));
   }
 
   public int compareTo(User2 u) {
