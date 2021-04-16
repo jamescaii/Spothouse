@@ -160,10 +160,6 @@ input[type=text] {
   color: #333;
 }
 
-.votebtn:hover {
-  background: #1ecd97;
-  color: #333;
-}
 
 .btn--login {
   margin: 0 auto;
@@ -172,6 +168,20 @@ input[type=text] {
 .btn--search   {
   margin: 0 auto;
   font-size: .5em;
+}
+
+.btn--skip   {
+  margin: 0 auto;
+  font-size: .75em;
+  padding: 0.5em 0.75em;
+  border: 0.2em solid #4070d1;
+  color: #4070d1;
+}
+
+.btn--skip:hover {
+  background: #1ecd967e;
+  border: 0.2em solid #1ecd967e;
+  color: rgb(0, 0, 0);
 }
 
 .btn--remove   {

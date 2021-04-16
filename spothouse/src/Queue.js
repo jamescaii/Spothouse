@@ -162,12 +162,12 @@ const Queue = props => {
                             <td align="center">
                                 <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36" >
-                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} className="votebtn" id={item.name} ></path>
+                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name} ></path>
                                   </svg>
                                 </span>
                                 <span className="votedown" onClick={handleDownvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 10h32L18 26 2 10z" style={getColorDown(item.name)} className="votebtn" id={item.name}></path>
+                                    <path d="M2 10h32L18 26 2 10z" style={getColorDown(item.name)} id={item.name}></path>
                                   </svg>
                                 </span>
                             </td>

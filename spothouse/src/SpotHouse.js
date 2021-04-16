@@ -606,9 +606,9 @@ class SpotHouse extends Component {
             />
               {this.state.isCreated && (
                 <>
-                <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
+                <AwesomeButton type="primary" className="btn btn--skip" onPress={() => {
                   this.skipSong()
-                }}>Skip</AwesomeButton>
+                }}>≫</AwesomeButton>
                 <br></br>
                 <br></br>
               </>
