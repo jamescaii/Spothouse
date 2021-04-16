@@ -11,23 +11,34 @@ const Queue = props => {
     const handleUpvote = async (event) => {
         let songName = event.target.id
         let found = false;
+        let action = false;
+        let isDown = false;
+        let num = 1;
         for (let i = 0; i < clickedMap.current.length; i++) {
             if (clickedMap.current[i].name === songName) {
-                console.log(clickedMap.current[i].name)
+                isDown = clickedMap.current[i].downboolean
                 clickedMap.current[i].upboolean = !clickedMap.current[i].upboolean
+                action = clickedMap.current[i].upboolean
+                // switching
+                if (isDown) {
+                    clickedMap.current[i].downboolean = !clickedMap.current[i].downboolean
+                    num++
+                }
                 found = true
             }
         }
-        console.log(clickedMap.current)
         if (!found) {
-            clickedMap.current.push({name: songName, upboolean: true})
+            clickedMap.current.push({name: songName, upboolean: true, downboolean: false})
+            action = true;
+            isDown = false;
         }
+        console.log(num)
         const toSend = {
             toChange: songName,
-            isIncrease: true,
-            isReset: false,
+            isIncrease: action,
             user: userName,
             rCode: roomCode,
+            numAdd: num
         }
         let config = {
             headers: {
@@ -47,29 +58,43 @@ const Queue = props => {
                 console.log(error);
             });
 
+
+    
     }
     
 
     const handleDownvote = async (event) => {
         let songName = event.target.id
         let found = false;
+        let action = false;
+        let isUp = false;
+        let num = 1;
         for (let i = 0; i < clickedMap.current.length; i++) {
             if (clickedMap.current[i].name === songName) {
-                console.log(clickedMap.current[i].name)
+                isUp = clickedMap.current[i].upboolean
                 clickedMap.current[i].downboolean = !clickedMap.current[i].downboolean
+                action = !clickedMap.current[i].downboolean
+                console.log(action)
+                // switching
+                if (isUp) {
+                    clickedMap.current[i].upboolean = !clickedMap.current[i].upboolean
+                    num++
+                }
                 found = true
             }
         }
-        console.log(clickedMap.current)
         if (!found) {
-            clickedMap.current.push({name: songName, downboolean: true})
+            clickedMap.current.push({name: songName, downboolean: true, upboolean: false})
+            action = false;
+            isUp = false;
         }
+        console.log(num)
         const toSend = {
             toChange: songName,
-            isIncrease: false,
-            isReset: false,
+            isIncrease: action,
             user: userName,
             rCode: roomCode,
+            numAdd: num
         }
         let config = {
             headers: {
@@ -88,6 +113,8 @@ const Queue = props => {
             .catch(function (error) {
                 console.log(error);
             });
+
+        
 
     }
     

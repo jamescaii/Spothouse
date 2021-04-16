@@ -494,6 +494,8 @@ class SpotHouse extends Component {
                 this.setState({usernameSet: true})
               }}>Submit Username</AwesomeButton>
               <br></br>
+              <p style={{fontSize: "small"}}>(leave blank for random name)</p>
+              <br></br>
           </>
           )}
           {this.state.token && !this.state.inRoom && this.state.usernameSet && (
@@ -505,7 +507,7 @@ class SpotHouse extends Component {
                   this.joinRoom(this.state.numberQuery)
                 }}>Join Room</AwesomeButton>
                 <hr style={{ height: 10, visibility: "hidden" }} />
-                <TextBox label="Enter Room Number:" style={{fontSize: "large"}} force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
+                <TextBox label="" style={{fontSize: "large"}} force={this.state.numberQuery} onChange={this.changeNumberQuery.bind(this)} />
               <br></br>
             </>
           )

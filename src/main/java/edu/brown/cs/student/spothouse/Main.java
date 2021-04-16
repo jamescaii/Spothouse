@@ -256,6 +256,7 @@ public final class Main {
       String toChange = data.getString("toChange");
       String roomCode = data.getString("rCode");
       String userName = data.getString("user");
+      int numAdd = Integer.parseInt(data.getString("numAdd"));
       System.out.println(userName + " voted " + toChange);
       int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
@@ -270,7 +271,9 @@ public final class Main {
           }
           if (isIncrease) {
             System.out.println("Increased Score: " + voterScore);
-            s.addVote(voterScore);
+            for (int i = 0; i < numAdd; i++) {
+              s.addVote(voterScore);
+            }
             // gets the requester of the song and adds the normalized score of the voter to it
             String requester = s.getRequester();
             for (User2 user: users.get(code)) {
@@ -281,7 +284,9 @@ public final class Main {
             }
           } else {
             System.out.println("Decreased Score: " + voterScore);
-            s.subVote(voterScore);
+            for (int i = 0; i < numAdd; i++) {
+              s.subVote(voterScore);
+            }
             // gets the requester of the song and subtracts the normalized score of the voter to it
             String requester = s.getRequester();
             for (User2 user: users.get(code)) {
