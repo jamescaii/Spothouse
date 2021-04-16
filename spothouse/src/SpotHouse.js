@@ -516,11 +516,13 @@ class SpotHouse extends Component {
               <>
                 <div className="row">
                   <div className="widercolumn">
-                    <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3><h3 className="username" style={{fontSize: "large"}}>Username: {this.state.userQuery} </h3>
+                    <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3>
+                    <br></br>
+                    <h3 className="username" style={{fontSize: "large"}}>{this.state.userQuery} </h3>
                     <br></br>
                   </div>
                   <div className="widercolumn">
-                    <h3 className="userslist" style={{fontSize: "large"}}>
+                    <h3 className="userslist" style={{fontSize: "large", textAlign: "right"}}>
                     Users List:</h3>
                     {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
                   </div>
@@ -576,17 +578,19 @@ class SpotHouse extends Component {
             
             {this.state.token && this.state.inRoom && !this.state.isCreated && (
               <>
-              <div className="row">
-                <div className="widercolumn">
-                  <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3><h3 className="username" style={{fontSize: "large"}}>Username: {this.state.userQuery} </h3>
-                  <br></br>
+                <div className="row">
+                  <div className="widercolumn">
+                    <h3 className="roomcode" style={{fontSize: "large"}}>Room Code: {this.state.code} </h3>
+                    <br></br>
+                    <h3 className="username" style={{fontSize: "large"}}>{this.state.userQuery} </h3>
+                    <br></br>
+                  </div>
+                  <div className="widercolumn">
+                    <h3 className="userslist" style={{fontSize: "large", textAlign: "right"}}>
+                    Users List:</h3>
+                    {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
+                  </div>
                 </div>
-                <div className="widercolumn">
-                  <h3 className="userslist" style={{fontSize: "large"}}>
-                  Users List:</h3>
-                  {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
-                </div>
-              </div>
                 <br></br>
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />

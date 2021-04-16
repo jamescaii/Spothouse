@@ -52,11 +52,13 @@ body {
 h3.roomcode {
   margin-left: 3em;
   align-self: flex-start;
+  text-align: left;
 }
 
 h3.username {
   margin-left: 3em;
   align-self: flex-start;
+  text-align: left;
 }
 
 h3.userslist {
@@ -67,6 +69,8 @@ h3.userslist {
 p.userslist {
   margin-right: 3em;
   align-self: flex-end;
+  font-family: 'Courier New', monospace;
+  text-align: right;
 }
 
 .search {
