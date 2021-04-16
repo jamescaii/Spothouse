@@ -137,8 +137,7 @@ class SpotHouse extends Component {
           console.log(error);
         });
   }
-
-
+  
   updateBackendQueue = () => {
     let orderedList = []
     console.log(window.songqueue)
