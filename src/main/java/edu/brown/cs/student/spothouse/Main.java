@@ -179,8 +179,6 @@ public final class Main {
       JSONArray songsJSON = data.getJSONArray("songs");
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-
-
       Set<String> frontSongSet = new HashSet<>();
       ArrayList<ArrayList<String>> tempSongList = new ArrayList<>();
       for (int i = 0; i < songsJSON.length(); i++) {
@@ -197,7 +195,6 @@ public final class Main {
         tempSongList.add(temp);
         frontSongSet.add(uri);
       }
-
       for (ArrayList<String> x : tempSongList) {
         if (!songSet.contains(x.get(3))) {
           System.out.println("Song added!");
