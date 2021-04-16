@@ -48,6 +48,7 @@ class SpotHouse extends Component {
       userQuery: "",
       userList: [],
       usernameSet: false,
+      go: false,
     };
 
     this.getCurrentlyPlaying = this.getCurrentlyPlaying.bind(this);
@@ -175,7 +176,7 @@ class SpotHouse extends Component {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
       },
       success: data => {
-        return true
+        this.setState({go: true})
       }
     });
   }
@@ -197,7 +198,6 @@ class SpotHouse extends Component {
         config
     )
         .then(response => {
-          return true 
         })
         .catch(function (error) {
           console.log(error);
@@ -391,7 +391,8 @@ class SpotHouse extends Component {
       let songUri = window.songqueue.shift().uri;
       this.addToSpotifyQueue(this.state.token, songUri)
       this.removeFromBackend(songUri)  
-      this.skipCurrentlyPlaying(this.state.token)
+      if (this.state.go) this.skipCurrentlyPlaying(this.state.token)
+      this.setState({go: false})
     }
   }
 

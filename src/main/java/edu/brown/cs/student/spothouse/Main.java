@@ -114,7 +114,7 @@ public final class Main {
     Spark.before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
     Spark.exception(Exception.class, new ExceptionPrinter());
     FreeMarkerEngine freeMarker = createEngine();
-    Spark.post("/", new LobbyGUI(), freeMarker);
+    Spark.get("/", new LobbyGUI(), freeMarker);
     Spark.post("/add", new AddHandler());
     Spark.post("/rankings", new RankingHandler());
     Spark.post("/setup", new SetupHandler());
