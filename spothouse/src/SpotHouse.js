@@ -310,20 +310,31 @@ class SpotHouse extends Component {
     let clickedName = e.currentTarget.textContent.split(" -, ")[1]
     let clickedURI = e.currentTarget.textContent.split(" -, ")[2]
     let clickedArt = e.currentTarget.textContent.split(" -, ")[3]
-    this.setState({ clickedSongURI: clickedURI })
-    var joined = window.songqueue.concat({
-      name: clickedName,
-      artist: clickedArtist,
-      artwork: clickedArt,
-      uri: clickedURI,
-    });
-    if (joined) {
-      window.songqueue = joined
-      this.addBackendQueue()
+    let found = false
+    for (let i = 0; i < window.songqueue.length; i++) {
+      if (window.songqueue[i].uri === clickedURI) {
+        found = true
+        alert("song already added!")
+        break
+      }
     }
+    if (!found) {
+      this.setState({ clickedSongURI: clickedURI })
+      var joined = window.songqueue.concat({
+        name: clickedName,
+        artist: clickedArtist,
+        artwork: clickedArt,
+        uri: clickedURI,
+      });
+      if (joined) {
+        window.songqueue = joined
+        this.addBackendQueue()
+      }
+  
+      this.setState({ count: this.state.count + 1 })
+      console.log("added!")
 
-    this.setState({ count: this.state.count + 1 })
-    console.log("added!")
+    }
   }
 
   getUsersList = () => {
@@ -503,7 +514,7 @@ class SpotHouse extends Component {
                   this.getSearch(this.state.token, this.state.searchQuery)
                 }}>Submit</AwesomeButton>
                 <br></br>
-                <p style={{ fontSize: "small" }}>Click on a song to add it to the queue!</p>
+                <p style={{ fontSize: "small" }}>Click on a song to add it to the queue! (duplicates not allowed)</p>
                 <br></br>
                 <div className="row">
                   <div className="column">
