@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 import './Queue.css';
 
@@ -33,7 +33,7 @@ const Queue = props => {
             }
         }
         await axios.post(
-            "http://localhost:4567/rankings",
+            "/rankings",
             toSend,
             config
         )
@@ -130,7 +130,7 @@ const Queue = props => {
                 <table id="table" className="table" border="1px" table-layour="fixed" bordercolor="black">
                     <tbody>
                     {props.songQueue.map(item =>
-                        <tr>
+                        <tr key={item.name}>
                             <td align="center">
                                 <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36">
@@ -143,7 +143,7 @@ const Queue = props => {
                                   </svg>
                                 </span>
                             </td>
-                            <td align="center"><img src={item.artwork} width="50" align="center"/></td>
+                            <td align="center"><img src={item.artwork} width="50" align="center" alt="album art"/></td>
                             <td align="center" style={{fontSize: 13, padding: 10}}>{item.name}</td>
                         </tr>
                     )

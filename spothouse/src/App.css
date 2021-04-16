@@ -92,6 +92,22 @@ tr td {
   text-align: center;
   width: 50%;
 }
+table, th, td {
+  border: 1px solid black;
+}
+table.tblbtn {
+  background-color: #116e51;
+  width: 100%;
+}
+
+tr {
+  
+  width: 100%;
+}
+tr:hover{  
+  background-color: #1f242b;
+  cursor: pointer;
+}
 
 .widercolumn {
   float: left;

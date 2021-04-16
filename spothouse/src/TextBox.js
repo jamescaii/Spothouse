@@ -10,7 +10,6 @@ import './App.js';
 function TextBox(props) {
     const textInput = useRef(0);
     const [textInp, setText] = useState(0);
-    const [searchQuery, setSearch] = useState("")
 
     /**
      * handleChange.
