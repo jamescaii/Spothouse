@@ -99,6 +99,13 @@ tr td {
 table, th, td {
   border: 1px solid black;
 }
+table .absorbing-column {
+    width: 100%;
+}
+table {
+  table-layout: auto;
+  border-collapse: collapse;
+}
 table.tblbtn {
   background-color: #116e51;
   width: 100%;

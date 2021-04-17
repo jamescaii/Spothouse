@@ -193,12 +193,12 @@ const Queue = props => {
             <h2>Queue</h2>
             <br></br>
             {props.songQueue[0] && (
-                <table id="table" className="table" border="1px" table-layour="fixed" bordercolor="black">
+                <table id="table" className="table" border="1px" table-layour="fixed" bordercolor="black" width="50%"  cellspacing="0" cellpadding="0">
                     <tbody>
                     {props.songQueue.map(item =>
                         <tr key={item.name}>
                             {renderRemove(item.uri)}
-                            <td align="center">
+                            <td align="center" style={{cellPadding: 0}}>
                                 <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36" >
                                     <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name} ></path>
@@ -211,7 +211,7 @@ const Queue = props => {
                                 </span>
                             </td>
                             <td align="center"><img src={item.artwork} width="50" align="center" alt="album art"/></td>
-                            <td align="center" style={{fontSize: 13, padding: 10}}>{item.name}</td>
+                            <td align="center" className="absorbing-column" style={{fontSize: 13, padding: 10}}>{item.name}</td>
                         </tr>
                     )
                     }

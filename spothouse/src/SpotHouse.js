@@ -91,7 +91,7 @@ class SpotHouse extends Component {
 
 
 
-  tick() {
+  async tick() {
     if (this.state.token) {
       if (this.state.inRoom) {
         this.getCurrentlyPlaying(this.state.hostToken);
@@ -406,12 +406,15 @@ class SpotHouse extends Component {
     this.setState({hostToken: this.state.token})
     this.setUpRoom(randomCode)
   }
-
-  skipSong() {
+  timeout(delay) {
+    return new Promise( res => setTimeout(res, delay) );
+  }
+  async skipSong() {
     if (window.songqueue.length > 0 && this.state.isCreated) {
       let songUri = window.songqueue.shift().uri;
       this.addToSpotifyQueue(this.state.token, songUri)
       this.removeFromBackend(songUri)
+      await this.timeout(500); // .5s delay
       if (this.state.go) this.skipCurrentlyPlaying(this.state.token)
       this.setState({go: false})
     }
