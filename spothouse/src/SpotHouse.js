@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import * as $ from "jquery";
-import { authEndpoint, clientId, redirectUri, scopes } from "./Config";
+import { authEndpoint, clientId, redirectUri, scopes, toDeploy } from "./Config";
 import { AwesomeButton } from "react-awesome-button";
 import Queue from "./Queue"
 import hash from "./hash";
@@ -126,7 +126,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "/getBackQueue",
+        "http://localhost:4567/getBackQueue",
         toSend,
         config
     )
@@ -156,7 +156,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "/add",
+        "http://localhost:4567/add",
         toSend,
         config
     )
@@ -196,7 +196,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "/remove",
+        "http://localhost:4567/remove",
         toSend,
         config
     )
@@ -350,7 +350,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "/users",
+        "http://localhost:4567/users",
         toSend,
         config
     )
@@ -382,7 +382,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "/setup",
+        "http://localhost:4567/setup",
         toSend,
         config
     )
@@ -449,7 +449,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "/join",
+        "http://localhost:4567/join",
         toSend,
         config
     )
