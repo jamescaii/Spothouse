@@ -1,74 +1,64 @@
 package edu.brown.cs.student.spothouse;
 
-/**
- * An interface representing a User, which includes the Host and Guest
- */
-public interface User {
-    /**
-     * Sets the score of the User, which will determine their priority for selecting Votables
-     * @param score - an integer representing the score of the User
-     */
-    void setScore(double score);
+import java.util.ArrayList;
 
-    /**
-     * Gets the score of the User
-     * @return - a double representing the Users current score
-     */
-    double getScore();
+public class User implements Comparable<User> {
+  private String username;
+  private double score = 0;
+  private boolean onFire = false;
+  private boolean isHost;
+  private ArrayList<Song> userSongs = new ArrayList<>();
+  public User(String username, boolean isHost) {
+    this.username = username;
+    this.isHost = isHost;
+  }
 
-    /**
-     * Increases the number of times this user has voted by one
-     */
-    void incrementTimesVoted();
+  public boolean isHost() {
+    return isHost;
+  }
 
-    /**
-     * Clears any voting data associated with the User
-     */
-    void clearVotes();
+  public void setOnFire(boolean onFire) {
+    this.onFire = onFire;
+  }
 
-    /**
-     * Adds Positive Votes to the User's data
-     * @param positiveVotes - the number of positive votes to add
-     */
-    void addPositiveVotes(int positiveVotes);
+  public String getUsername() {
+    return username;
+  }
 
-    /**
-     * Adds Negative Votes to the User's data
-     * @param negativeVotes - the number of negative votes to add
-     */
-    void addNegativeVotes(int negativeVotes);
+  public double getScore() {
+    return score;
+  }
 
-    /**
-     * Gets the number of times this User has voted
-     * @return - the number of votes this user has cast
-     */
-    int getTimesVoted();
+  public boolean isOnFire() {
+    return onFire;
+  }
 
-    /**
-     * Increments the number of Votables requests the User has
-     */
-    void incrementVotablesRequested();
+  public void addScore(double s) {
+    score += s;
+  }
 
-    /**
-     * Gets the number of times this User has requested a Votable
-     * @return - the number of requests
-     */
-    int getVotablesRequested();
+  public void subScore(double s) {
+    score -= s;
+  }
 
-    /**
-     * Gets the User's total positive votes
-     * @return - the number of positive votes
-     */
-    int getPositiveVotes();
+  public void addSong(Song song) {
+    userSongs.add(song);
+  }
 
-    /**
-     * Gets the User's total negative votes
-     * @return - the number of negative votes
-     */
-    int getNegativeVotes();
+  public boolean songExists(String name) {
+    for (Song s: userSongs) {
+      if (name.equals(s.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-    /**
-     *
-     */
-    void updateScore();
+  public double getNormalizedScore() {
+    return (1 / (1 + Math.pow(Math.E, (-0.25 * score))));
+  }
+
+  public int compareTo(User u) {
+    return u.getScore() < this.getScore() ? -1 : 1;
+  }
 }

@@ -23,8 +23,8 @@ import spark.template.freemarker.FreeMarkerEngine;
  */
 public final class Main {
 
-  private static final Map<Integer, ArrayList<Song2>> songs = new HashMap<>();
-  private static final Map<Integer, ArrayList<User2>> users = new HashMap<>();
+  private static final Map<Integer, ArrayList<Song>> songs = new HashMap<>();
+  private static final Map<Integer, ArrayList<User>> users = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
   // private static Set<String> songSet = new HashSet<>();
@@ -152,8 +152,8 @@ public final class Main {
       int code = Integer.parseInt(roomCode);
       songSetMap.get(code).remove(songUri);
       // songSet.remove(songUri);
-      ArrayList<Song2> tempList = new ArrayList<>();
-      for (Song2 s: songs.get(code)) {
+      ArrayList<Song> tempList = new ArrayList<>();
+      for (Song s: songs.get(code)) {
         if (!s.getUri().equals(songUri)) {
           tempList.add(s);
         }
@@ -172,13 +172,13 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-      ArrayList<User2> tempList = users.get(code);
+      ArrayList<User> tempList = users.get(code);
       Collections.sort(tempList);
       int listLength = tempList.size();
       if (listLength >= 4) {
         int topUsersLength = listLength / 4;
         int start = 0;
-        for (User2 u: tempList) {
+        for (User u: tempList) {
           if (start < topUsersLength) {
             u.setOnFire(true);
           } else {
@@ -218,7 +218,7 @@ public final class Main {
       for (ArrayList<String> x : tempSongList) {
         if (!songSetMap.get(code).contains(x.get(3))) {
           System.out.println("Song added!");
-          Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), userName, 0);
+          Song newSong = new Song(x.get(0), x.get(1), x.get(2), x.get(3), userName, 0);
           songs.get(code).add(newSong);
           System.out.println(songs.get(code));
           songSetMap.get(code).add(x.get(3));
@@ -226,8 +226,8 @@ public final class Main {
       }
       Set<String> repeated = new HashSet<>();
       
-      ArrayList<Song2> noRepeats = new ArrayList<>();
-      for (Song2 element: songs.get(code)) {
+      ArrayList<Song> noRepeats = new ArrayList<>();
+      for (Song element: songs.get(code)) {
         if (!repeated.contains(element.getName())) {
           noRepeats.add(element);
           repeated.add(element.getName());
@@ -259,11 +259,11 @@ public final class Main {
       System.out.println(userName + " voted on " + toChange);
       int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
-      for (Song2 s: songs.get(code)) {
+      for (Song s: songs.get(code)) {
         if (s.getName().equals(toChange)) {
           // this gets finds the score of the user that upvoted the song and applies a sigmoid function to it
           double voterScore = 0;
-          for (User2 user: users.get(code)) {
+          for (User user: users.get(code)) {
             if (userName.equals(user.getUsername())) {
               voterScore = user.getNormalizedScore();
             }
@@ -275,7 +275,7 @@ public final class Main {
             }
             // gets the requester of the song and adds the normalized score of the voter to it
             String requester = s.getRequester();
-            for (User2 user: users.get(code)) {
+            for (User user: users.get(code)) {
               if (requester.equals(user.getUsername())) {
                 user.addScore(voterScore);
                 break;
@@ -288,7 +288,7 @@ public final class Main {
             }
             // gets the requester of the song and subtracts the normalized score of the voter to it
             String requester = s.getRequester();
-            for (User2 user: users.get(code)) {
+            for (User user: users.get(code)) {
               if (requester.equals(user.getUsername())) {
                 user.subScore(voterScore);
                 break;
@@ -297,7 +297,7 @@ public final class Main {
           }
         }
       }
-      ArrayList<Song2> tempList = songs.get(code);
+      ArrayList<Song> tempList = songs.get(code);
       Collections.sort(tempList);
       songs.put(code, tempList);
       Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "name", toChange, "userList", users.get(code));
@@ -313,11 +313,11 @@ public final class Main {
       String hostName = data.getString("hostName");
       hostToken = data.getString("hostToken");
       System.out.println("new room created: " + roomCode + " with host " + hostName);
-      User2 newUser = new User2(hostName, true);
-      ArrayList<User2> tempList = new ArrayList<>();
+      User newUser = new User(hostName, true);
+      ArrayList<User> tempList = new ArrayList<>();
       tempList.add(newUser);
       users.put(code, tempList);
-      ArrayList<Song2> queue = new ArrayList<>();
+      ArrayList<Song> queue = new ArrayList<>();
       songs.put(code, queue);
       HashSet<String> songSet = new HashSet<>();
       songSetMap.put(code, songSet);
@@ -332,8 +332,8 @@ public final class Main {
       String joinCode = data.getString("query");
       int code = Integer.parseInt(joinCode);
       String guestName = data.getString("guestName");
-      User2 newUser = new User2(guestName, false);
-      ArrayList<User2> tempList = users.get(code);
+      User newUser = new User(guestName, false);
+      ArrayList<User> tempList = users.get(code);
       tempList.add(newUser);
       users.put(code, tempList);
       System.out.println(users.get(code).get(1).getUsername());
