@@ -465,7 +465,7 @@ class SpotHouse extends Component {
           this.setState({inRoom: true})
         })
         .catch(function (error) {
-          alert("This room does not exist")
+          alert("Invalid room code!")
           console.log(error);
         });
   }
