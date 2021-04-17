@@ -409,6 +409,7 @@ class SpotHouse extends Component {
     if (window.songqueue.length > 0 && this.state.isCreated) {
       let songUri = window.songqueue.shift().uri;
       this.addToSpotifyQueue(this.state.token, songUri)
+      this.setState({ added: true })
       this.removeFromBackend(songUri)
       await this.timeout(500); // .5s delay
       if (this.state.go) this.skipCurrentlyPlaying(this.state.token)
