@@ -8,7 +8,6 @@ public class User implements Comparable<User> {
   private boolean onFire = false;
   private boolean isHost;
   private static final double SIGMOID_SCALE = -0.25;
-  private ArrayList<Song> userSongs = new ArrayList<>();
   public User(String username, boolean isHost) {
     this.username = username;
     this.isHost = isHost;
@@ -40,19 +39,6 @@ public class User implements Comparable<User> {
 
   public void subScore(double s) {
     score -= s;
-  }
-
-  public void addSong(Song song) {
-    userSongs.add(song);
-  }
-
-  public boolean songExists(String name) {
-    for (Song s: userSongs) {
-      if (name.equals(s.getName())) {
-        return true;
-      }
-    }
-    return false;
   }
 
   public double getNormalizedScore() {

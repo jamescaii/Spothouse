@@ -27,7 +27,6 @@ public final class Main {
   private static final Map<Integer, ArrayList<User>> users = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  // private static Set<String> songSet = new HashSet<>();
   private static final Map<Integer, HashSet<String>> songSetMap = new HashMap<>();
   private static String hostToken = new String();
 
@@ -254,47 +253,12 @@ public final class Main {
       String roomCode = data.getString("rCode");
       String userName = data.getString("user");
       int numAdd = Integer.parseInt(data.getString("numAdd"));
-      // System.out.println(userName + " voted on " + toChange);
       int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
-      for (Song s: songs.get(code)) {
-        if (s.getName().equals(toChange)) {
-          // this gets finds the score of the user that upvoted the song and applies a sigmoid function to it
-          double voterScore = 0;
-          for (User user: users.get(code)) {
-            if (userName.equals(user.getUsername())) {
-              voterScore = user.getNormalizedScore();
-            }
-          }
-          if (isIncrease) {
-            System.out.println("Increased Score by " + voterScore);
-            for (int i = 0; i < numAdd; i++) {
-              s.addVote(voterScore);
-            }
-            // gets the requester of the song and adds the normalized score of the voter to it
-            String requester = s.getRequester();
-            for (User user: users.get(code)) {
-              if (requester.equals(user.getUsername())) {
-                user.addScore(voterScore);
-                break;
-              }
-            }
-          } else {
-            System.out.println("Decreased Score by " + voterScore);
-            for (int i = 0; i < numAdd; i++) {
-              s.subVote(voterScore);
-            }
-            // gets the requester of the song and subtracts the normalized score of the voter to it
-            String requester = s.getRequester();
-            for (User user: users.get(code)) {
-              if (requester.equals(user.getUsername())) {
-                user.subScore(voterScore);
-                break;
-              }
-            }
-          }
-        }
-      }
+      Result r = RankingAlgorithm.updateRankings(toChange, userName, numAdd, isIncrease,
+              songs.get(code), users.get(code));
+      songs.put(code, r.getSongList());
+      users.put(code, r.getUserList());
       ArrayList<Song> tempList = songs.get(code);
       Collections.sort(tempList);
       songs.put(code, tempList);
