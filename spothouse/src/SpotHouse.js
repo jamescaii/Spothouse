@@ -97,9 +97,13 @@ class SpotHouse extends Component {
         this.getCurrentlyPlaying(this.state.hostToken);
         this.retrieveBackendQueue();
         this.getUsersList();
-        if (this.state.progress_ms / this.state.item.duration_ms > .95 & !this.state.added) {
+        console.log(this.state.added)
+        if (this.state.progress_ms / this.state.item.duration_ms < .2) {
+          this.setState({ added: false })
+        }
+        if (this.state.progress_ms / this.state.item.duration_ms > .98 & !this.state.added) {
+          console.log("almost done!")
           this.setState({ added: true })
-          console.log("almost done")
           if (window.songqueue.length > 0) {
             let songUri = window.songqueue.shift().uri;
             this.removeFromBackend(songUri)    
@@ -211,10 +215,6 @@ class SpotHouse extends Component {
     this.endPage.scrollIntoView({ behavior: "smooth" });
   }
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.count !== this.state.count)
-      //this.scrollToBottom();
-    if (prevState.item.name !== this.state.item.name)
-      this.setState({ added: false })
   }
   getSearch(token, searchQuery) {
     // parse searchQuery
@@ -409,7 +409,7 @@ class SpotHouse extends Component {
     if (window.songqueue.length > 0 && this.state.isCreated) {
       let songUri = window.songqueue.shift().uri;
       this.addToSpotifyQueue(this.state.token, songUri)
-      this.setState({ added: true })
+      this.setState({ added: false })
       this.removeFromBackend(songUri)
       await this.timeout(500); // .5s delay
       if (this.state.go) this.skipCurrentlyPlaying(this.state.token)
