@@ -102,7 +102,6 @@ class SpotHouse extends Component {
           console.log("almost done")
           if (window.songqueue.length > 0) {
             let songUri = window.songqueue.shift().uri;
-            console.log(window.songqueue)
             this.removeFromBackend(songUri)    
             this.retrieveBackendQueue();
             if (this.state.isCreated) {
@@ -127,7 +126,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/getBackQueue",
+        "/getBackQueue",
         toSend,
         config
     )
@@ -135,7 +134,7 @@ class SpotHouse extends Component {
           window.songqueue = response.data["songList"]
           listUser = response.data["userList"]
           this.setState({userList: listUser})
-          console.log(this.state.userList)
+          //console.log(this.state.userList)
         })
         .catch(function (error) {
           console.log(error);
@@ -145,7 +144,6 @@ class SpotHouse extends Component {
 
   addBackendQueue = () => {
     let orderedList = []
-    console.log(window.songqueue)
     const toSend = {
       songs: window.songqueue,
       roomCode: this.state.code,
@@ -158,7 +156,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/add",
+        "/add",
         toSend,
         config
     )
@@ -198,7 +196,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/remove",
+        "/remove",
         toSend,
         config
     )
@@ -214,7 +212,7 @@ class SpotHouse extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
     if (prevState.count !== this.state.count)
-      this.scrollToBottom();
+      //this.scrollToBottom();
     if (prevState.item.name !== this.state.item.name)
       this.setState({ added: false })
   }
@@ -229,7 +227,6 @@ class SpotHouse extends Component {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
       },
       success: data => {
-        //console.log(data)
         // Checks if the data is not empty
         if (data) {
           this.setState({
@@ -242,7 +239,6 @@ class SpotHouse extends Component {
             )
             )
           });
-          console.log(this.state.searchResults)
           return;
         }
 
@@ -354,7 +350,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/users",
+        "/users",
         toSend,
         config
     )
@@ -386,7 +382,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/setup",
+        "/setup",
         toSend,
         config
     )
@@ -453,7 +449,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/join",
+        "/join",
         toSend,
         config
     )
@@ -548,7 +544,7 @@ class SpotHouse extends Component {
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
                           <tbody>
                           {this.state.topTracks.map(item =>
-                            <tr id="tableresult" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
+                            <tr id="tableresult" className="trbtn" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
                             {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>
                               </tr>)}
 
@@ -566,7 +562,7 @@ class SpotHouse extends Component {
                         <br></br>
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
                           <tbody>
-                            {this.state.searchResults.map(item => <tr id="tableresult" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
+                            {this.state.searchResults.map(item => <tr id="tableresult" className="trbtn" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
                               {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p></tr>)}
 
                           </tbody>
@@ -612,7 +608,7 @@ class SpotHouse extends Component {
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
                           <tbody>
                           {this.state.topTracks.map(item =>
-                            <tr id="tableresult" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
+                            <tr id="tableresult" className="trbtn" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
                             {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>
                               </tr>)}
 
@@ -630,7 +626,7 @@ class SpotHouse extends Component {
                         <br></br>
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
                           <tbody>
-                            {this.state.searchResults.map(item => <tr id="tableresult" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
+                            {this.state.searchResults.map(item => <tr id="tableresult" className="trbtn" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
                               {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p></tr>)}
 
                           </tbody>

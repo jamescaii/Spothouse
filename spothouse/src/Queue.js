@@ -47,7 +47,7 @@ const Queue = props => {
             }
         }
         await axios.post(
-            "http://localhost:4567/rankings",
+            "/rankings",
             toSend,
             config
         )
@@ -103,7 +103,7 @@ const Queue = props => {
             }
         }
         await axios.post(
-            "http://localhost:4567/rankings",
+            "/rankings",
             toSend,
             config
         )
@@ -177,7 +177,7 @@ const Queue = props => {
         }
       }
       axios.post(
-          "http://localhost:4567/remove",
+          "/remove",
           toSend,
           config
       )
@@ -193,7 +193,7 @@ const Queue = props => {
             <h2>Queue</h2>
             <br></br>
             {props.songQueue[0] && (
-                <table id="table" className="table" border="1px" table-layour="fixed" bordercolor="black" width="50%"  cellspacing="0" cellpadding="0">
+                <table id="table" className="queue" border="1px" table-layour="fixed" bordercolor="black" width="50%"  cellspacing="0" cellpadding="0">
                     <tbody>
                     {props.songQueue.map(item =>
                         <tr key={item.name}>

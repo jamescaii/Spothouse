@@ -106,6 +106,9 @@ table {
   table-layout: auto;
   border-collapse: collapse;
 }
+table.queue {  
+  background-color: rgba(0, 0, 0, 0.322);
+}
 table.tblbtn {
   background-color: #116e51;
   width: 100%;
@@ -115,7 +118,7 @@ tr {
   
   width: 100%;
 }
-tr:hover{  
+tr.trbtn:hover{  
   background-color: #1f242b;
   cursor: pointer;
 }
