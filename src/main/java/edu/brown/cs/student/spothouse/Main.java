@@ -27,7 +27,8 @@ public final class Main {
   private static final Map<Integer, ArrayList<User2>> users = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static Set<String> songSet = new HashSet<>();
+  // private static Set<String> songSet = new HashSet<>();
+  private static final Map<Integer, HashSet<String>> songSetMap = new HashMap<>();
   private static String hostToken = new String();
 
   /**
@@ -149,7 +150,8 @@ public final class Main {
       String songUri = data.getString("songUri");
       String roomCode = data.getString("code");
       int code = Integer.parseInt(roomCode);
-      songSet.remove(songUri);
+      songSetMap.get(code).remove(songUri);
+      // songSet.remove(songUri);
       ArrayList<Song2> tempList = new ArrayList<>();
       for (Song2 s: songs.get(code)) {
         if (!s.getUri().equals(songUri)) {
@@ -159,7 +161,8 @@ public final class Main {
       songs.put(code, tempList);
       System.out.println("Song removed!");
       System.out.println(songs.get(code));
-      Map<String, Object> variables = ImmutableMap.of("songSet", songSet);
+      // Map<String, Object> variables = ImmutableMap.of("songSet", songSet);
+      Map<String, Object> variables = ImmutableMap.of("songSet", songSetMap.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -213,12 +216,12 @@ public final class Main {
         tempSongList.add(temp);
       }
       for (ArrayList<String> x : tempSongList) {
-        if (!songSet.contains(x.get(3))) {
+        if (!songSetMap.get(code).contains(x.get(3))) {
           System.out.println("Song added!");
           Song2 newSong = new Song2(x.get(0), x.get(1), x.get(2), x.get(3), userName, 0);
           songs.get(code).add(newSong);
           System.out.println(songs.get(code));
-          songSet.add(x.get(3));
+          songSetMap.get(code).add(x.get(3));
         }
       }
       Set<String> repeated = new HashSet<>();
@@ -316,6 +319,8 @@ public final class Main {
       users.put(code, tempList);
       ArrayList<Song2> queue = new ArrayList<>();
       songs.put(code, queue);
+      HashSet<String> songSet = new HashSet<>();
+      songSetMap.put(code, songSet);
       Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "userList", users.get(code));
       return GSON.toJson(variables);
     }
