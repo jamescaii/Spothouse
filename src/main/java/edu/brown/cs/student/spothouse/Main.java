@@ -87,7 +87,7 @@ public final class Main {
     try {
       config.setDirectoryForTemplateLoading(templates);
     } catch (IOException ioe) {
-      // System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
+      System.out.printf("ERROR: Unable to use %s for template loading.%n", templates);
       System.exit(1);
     }
     return new FreeMarkerEngine(config);
@@ -151,7 +151,6 @@ public final class Main {
       String roomCode = data.getString("code");
       int code = Integer.parseInt(roomCode);
       songSetMap.get(code).remove(songUri);
-      // songSet.remove(songUri);
       ArrayList<Song> tempList = new ArrayList<>();
       for (Song s: songs.get(code)) {
         if (!s.getUri().equals(songUri)) {
@@ -161,7 +160,6 @@ public final class Main {
       songs.put(code, tempList);
       System.out.println("Song removed!");
       System.out.println(songs.get(code));
-      // Map<String, Object> variables = ImmutableMap.of("songSet", songSet);
       Map<String, Object> variables = ImmutableMap.of("songSet", songSetMap.get(code));
       return GSON.toJson(variables);
     }
@@ -256,7 +254,7 @@ public final class Main {
       String roomCode = data.getString("rCode");
       String userName = data.getString("user");
       int numAdd = Integer.parseInt(data.getString("numAdd"));
-      System.out.println(userName + " voted on " + toChange);
+      // System.out.println(userName + " voted on " + toChange);
       int code = Integer.parseInt(roomCode);
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
       for (Song s: songs.get(code)) {

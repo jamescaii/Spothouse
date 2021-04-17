@@ -7,6 +7,7 @@ public class User implements Comparable<User> {
   private double score = 0;
   private boolean onFire = false;
   private boolean isHost;
+  private static final double SIGMOID_SCALE = -0.25;
   private ArrayList<Song> userSongs = new ArrayList<>();
   public User(String username, boolean isHost) {
     this.username = username;
@@ -55,7 +56,7 @@ public class User implements Comparable<User> {
   }
 
   public double getNormalizedScore() {
-    return (1 / (1 + Math.pow(Math.E, (-0.25 * score))));
+    return (1 / (1 + Math.pow(Math.E, (SIGMOID_SCALE * score))));
   }
 
   public int compareTo(User u) {
