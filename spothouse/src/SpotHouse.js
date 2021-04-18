@@ -55,6 +55,10 @@ class SpotHouse extends Component {
     this.tick = this.tick.bind(this);
   }
 
+  /**
+   *
+   * @param param
+   */
   changeQuery(param) {
     this.setState({ searchQuery: param })
   }
