@@ -116,9 +116,9 @@ table.tblbtn {
 
 thead, tbody.scroll { display: block; }
 tbody.scroll {
-  height: 150px;       /* Just for the demo          */
-  overflow-y: auto;    /* Trigger vertical scroll    */
-  overflow-x: hidden;  /* Hide the horizontal scroll */
+  height: 150px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 tr {
   
