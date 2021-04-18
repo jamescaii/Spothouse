@@ -221,7 +221,7 @@ class SpotHouse extends Component {
     let searchQueryParameter = encodeURIComponent(searchQuery.trim())
     // Make a call using the token
     $.ajax({
-      url: "https://api.spotify.com/v1/search?q=" + searchQueryParameter + "&type=track&limit=10",
+      url: "https://api.spotify.com/v1/search?q=" + searchQueryParameter + "&type=track&limit=20",
       type: "GET",
       beforeSend: xhr => {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -291,7 +291,7 @@ class SpotHouse extends Component {
   getTopTracks(token) {
     // Make a call using the token
     $.ajax({
-      url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10",
+      url: "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=20",
       type: "GET",
       beforeSend: xhr => {
         xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -547,7 +547,6 @@ class SpotHouse extends Component {
                     {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{this.getFire(item)}{item.username}</p>)}
                   </div>
                 </div>
-                <br></br>
                 <TextBox label="Search for a song:" force={this.state.searchQuery} onChange={this.changeQuery.bind(this)} />
                 <hr style={{ height: 10, visibility: "hidden" }} />
                 <AwesomeButton type="primary" className="btn btn--search" onPress={() => {
@@ -563,9 +562,9 @@ class SpotHouse extends Component {
                         <h4>Your top tracks:</h4>
                         <br></br>
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
-                          <tbody>
+                          <tbody className="scroll">
                           {this.state.topTracks.map(item =>
-                            <tr id="tableresult" className="trbtn" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
+                            <tr id="tableresult" className="trbtn" key={item.uri} onClick={item => this.clickResult(item)}><p className="search">
                             {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>
                               </tr>)}
 
@@ -582,8 +581,8 @@ class SpotHouse extends Component {
                         <h4>Search results:</h4>
                         <br></br>
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
-                          <tbody>
-                            {this.state.searchResults.map(item => <tr id="tableresult" className="trbtn" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
+                          <tbody className="scroll">
+                            {this.state.searchResults.map(item => <tr id="tableresult" className="trbtn" key={item.uri}><p className="search" onClick={item => this.clickResult(item)}>
                               {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p></tr>)}
 
                           </tbody>
@@ -627,9 +626,9 @@ class SpotHouse extends Component {
                         <h4>Your top tracks:</h4>
                         <br></br>
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
-                          <tbody>
+                          <tbody className="scroll">
                           {this.state.topTracks.map(item =>
-                            <tr id="tableresult" className="trbtn" key={item.name} onClick={item => this.clickResult(item)}><p className="search">
+                            <tr id="tableresult" className="trbtn" key={item.uri} onClick={item => this.clickResult(item)}><p className="search">
                             {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p>
                               </tr>)}
 
@@ -646,8 +645,8 @@ class SpotHouse extends Component {
                         <h4>Search results:</h4>
                         <br></br>
                         <table className="tablebtn" border="1px" table-layour="fixed" bordercolor="black">
-                          <tbody>
-                            {this.state.searchResults.map(item => <tr id="tableresult" className="trbtn" key={item.name}><p className="search" onClick={item => this.clickResult(item)}>
+                          <tbody className="scroll">
+                            {this.state.searchResults.map(item => <tr id="tableresult" className="trbtn" key={item.uri}><p className="search" onClick={item => this.clickResult(item)}>
                               {item.artist} -<span style={{ display: "none" }}>,</span> {item.name}<div style={{ display: "none" }}> -, {item.uri} -, {item.artwork}</div></p></tr>)}
 
                           </tbody>
