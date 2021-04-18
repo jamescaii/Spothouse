@@ -12,8 +12,7 @@ class App extends Component {
       <div className="App">
         <div className="App-header">
           <img src={logo} width="80px"></img>
-          <br></br>
-          <h2>SpotHouse!</h2>
+          <h2 style={{marginTop: "1%"}}>SpotHouse!</h2>
           <br></br>
         </div>
         <div>
