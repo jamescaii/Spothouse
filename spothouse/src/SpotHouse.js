@@ -228,7 +228,9 @@ class SpotHouse extends Component {
       },
       success: data => {
         // Checks if the data is not empty
+        // TODO: make this better
         if (data) {
+          this.setState({searchResults: []})
           this.setState({
             searchResults: data.tracks.items.map((item) => ({
               name: item.name,
