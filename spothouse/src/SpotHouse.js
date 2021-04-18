@@ -216,7 +216,7 @@ class SpotHouse extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
   }
-  getSearch(token, searchQuery) {
+    getSearch(token, searchQuery) {
     // parse searchQuery
     let searchQueryParameter = encodeURIComponent(searchQuery.trim())
     // Make a call using the token
@@ -230,7 +230,15 @@ class SpotHouse extends Component {
         // Checks if the data is not empty
         // TODO: make this better
         if (data) {
-          this.setState({searchResults: []})
+          this.setState({
+            searchResults: [
+              {
+                name: "",
+                artist: "",
+                uri: "",
+                artwork: "",
+              }
+            ],})
           this.setState({
             searchResults: data.tracks.items.map((item) => ({
               name: item.name,
@@ -241,6 +249,7 @@ class SpotHouse extends Component {
             )
             )
           });
+          
           return;
         }
 
