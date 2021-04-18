@@ -1,5 +1,8 @@
 package edu.brown.cs.student.spothouse;
 
+/**
+ * Class to store information about a user in the room.
+ */
 public class User implements Comparable<User> {
 
   private final String username;
@@ -9,7 +12,7 @@ public class User implements Comparable<User> {
   private static final double SIGMOID_SCALE = -0.25;
 
   /**
-   * Class to store information about a user in the room.
+   * Constructor receives the user name and the host boolean.
    * @param username user name
    * @param isHost boolean to mark the user as host or guest.
    */

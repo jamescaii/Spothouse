@@ -2,13 +2,16 @@ package edu.brown.cs.student.spothouse;
 
 import java.util.ArrayList;
 
+/**
+ * Class to wrap the constantly updating songs and users list.
+ */
 public class Result {
 
   private final ArrayList<Song> songList;
   private final ArrayList<User> userList;
 
   /**
-   * Class to store the constantly updating songs and users list.
+   * Constructor receives two lists.
    * @param songList list of current songs
    * @param userList list of current users
    */

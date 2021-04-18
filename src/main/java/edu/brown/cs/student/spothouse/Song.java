@@ -1,5 +1,7 @@
 package edu.brown.cs.student.spothouse;
-
+/**
+ * Class to store various information about song.
+ */
 public class Song implements Comparable<Song> {
 
   private final String name;
@@ -10,7 +12,7 @@ public class Song implements Comparable<Song> {
   private double votes;
 
   /**
-   * Class to store various information about song.
+   * constructor initiates the final instance variables.
    * @param name song name
    * @param artist song artist
    * @param artwork song album artwork url
