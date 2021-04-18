@@ -3,7 +3,18 @@ package edu.brown.cs.student.spothouse;
 import java.util.ArrayList;
 
 public final class RankingAlgorithm {
-  private RankingAlgorithm() { }
+
+  /**
+   * Ranking algorithm. Updates the current queue order based on the new rankings
+   * checked periodically.
+   * @param toChange name of the song that was upvoted
+   * @param userName name of the user who made the new vote
+   * @param numAdd number of times to add the score
+   * @param isIncrease boolean to check for increase or not.
+   * @param songArrayList current songs
+   * @param userArrayList current users
+   * @return newly updated song and user lists.
+   */
   public static Result updateRankings(String toChange, String userName, int numAdd, boolean isIncrease,
                                ArrayList<Song> songArrayList, ArrayList<User> userArrayList) {
     ArrayList<Song> copySongList = songArrayList;
@@ -50,6 +61,12 @@ public final class RankingAlgorithm {
     return result;
   }
 
+  /**
+   * adds onFire status to users.
+   * @param userList current list of users.
+   * @param listLength length of the list
+   * @return newly updated list
+   */
   public static ArrayList<User> addOnFire(ArrayList<User> userList, int listLength) {
     ArrayList<User> tempList = userList;
     int topUsersLength = listLength / 4;
