@@ -114,6 +114,12 @@ table.tblbtn {
   width: 100%;
 }
 
+thead, tbody.scroll { display: block; }
+tbody.scroll {
+  height: 150px;       /* Just for the demo          */
+  overflow-y: auto;    /* Trigger vertical scroll    */
+  overflow-x: hidden;  /* Hide the horizontal scroll */
+}
 tr {
   
   width: 100%;
