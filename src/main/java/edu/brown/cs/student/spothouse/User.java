@@ -1,7 +1,5 @@
 package edu.brown.cs.student.spothouse;
 
-import java.util.ArrayList;
-
 public class User implements Comparable<User> {
   private String username;
   private double score = 0;

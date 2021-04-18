@@ -25,9 +25,9 @@ public final class Main {
 
   private static final Map<Integer, ArrayList<Song>> songs = new HashMap<>();
   private static final Map<Integer, ArrayList<User>> users = new HashMap<>();
+  private static final Map<Integer, HashSet<String>> songSetMap = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static final Map<Integer, HashSet<String>> songSetMap = new HashMap<>();
   private static String hostToken = new String();
 
   /**
@@ -173,16 +173,7 @@ public final class Main {
       Collections.sort(tempList);
       int listLength = tempList.size();
       if (listLength >= 4) {
-        int topUsersLength = listLength / 4;
-        int start = 0;
-        for (User u: tempList) {
-          if (start < topUsersLength) {
-            u.setOnFire(true);
-          } else {
-            u.setOnFire(false);
-          }
-          start++;
-        }
+        tempList = RankingAlgorithm.addOnFire(tempList, listLength);
       }
       users.put(code, tempList);
       Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "userList", users.get(code));
@@ -222,7 +213,6 @@ public final class Main {
         }
       }
       Set<String> repeated = new HashSet<>();
-      
       ArrayList<Song> noRepeats = new ArrayList<>();
       for (Song element: songs.get(code)) {
         if (!repeated.contains(element.getName())) {

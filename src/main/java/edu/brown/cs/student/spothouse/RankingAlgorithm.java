@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public final class RankingAlgorithm {
   private RankingAlgorithm() { }
-  public static  Result updateRankings(String toChange, String userName, int numAdd, boolean isIncrease,
+  public static Result updateRankings(String toChange, String userName, int numAdd, boolean isIncrease,
                                ArrayList<Song> songArrayList, ArrayList<User> userArrayList) {
     ArrayList<Song> copySongList = songArrayList;
     ArrayList<User> copyUserList = userArrayList;
@@ -48,5 +48,20 @@ public final class RankingAlgorithm {
     }
     Result result = new Result(copySongList, copyUserList);
     return result;
+  }
+
+  public static ArrayList<User> addOnFire(ArrayList<User> userList, int listLength) {
+    ArrayList<User> tempList = userList;
+    int topUsersLength = listLength / 4;
+    int start = 0;
+    for (User u: tempList) {
+      if (start < topUsersLength) {
+        u.setOnFire(true);
+      } else {
+        u.setOnFire(false);
+      }
+      start++;
+    }
+    return tempList;
   }
 }
