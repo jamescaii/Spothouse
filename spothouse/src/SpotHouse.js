@@ -130,7 +130,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/getBackQueue",
+        "/getBackQueue",
         toSend,
         config
     )
@@ -160,7 +160,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/add",
+        "/add",
         toSend,
         config
     )
@@ -200,7 +200,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/remove",
+        "/remove",
         toSend,
         config
     )
@@ -361,7 +361,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/users",
+        "/users",
         toSend,
         config
     )
@@ -393,7 +393,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/setup",
+        "/setup",
         toSend,
         config
     )
@@ -461,7 +461,7 @@ class SpotHouse extends Component {
       }
     }
     axios.post(
-        "http://localhost:4567/join",
+        "/join",
         toSend,
         config
     )

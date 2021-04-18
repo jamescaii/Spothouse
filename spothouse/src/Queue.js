@@ -47,7 +47,7 @@ const Queue = props => {
             }
         }
         await axios.post(
-            "http://localhost:4567/rankings",
+            "/rankings",
             toSend,
             config
         )
@@ -103,7 +103,7 @@ const Queue = props => {
             }
         }
         await axios.post(
-            "http://localhost:4567/rankings",
+            "/rankings",
             toSend,
             config
         )
@@ -177,7 +177,7 @@ const Queue = props => {
         }
       }
       axios.post(
-          "http://localhost:4567/remove",
+          "/remove",
           toSend,
           config
       )
