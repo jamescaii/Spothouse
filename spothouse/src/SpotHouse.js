@@ -36,6 +36,11 @@ class SpotHouse extends Component {
         }
       ],
       clickedSongURI: "",
+      clickedSongArtist: "",
+      clickedSongName: "",
+      clickedSongArt: "",
+      clickedVoteName: "",
+      clickedRemoveName: "",
       conn: null,
       lobbyID: -1,
       myID: -1,
@@ -60,7 +65,7 @@ class SpotHouse extends Component {
     let _token = hash.access_token;
 
     if (_token) {
-      // Set token
+      // Set toke
       this.setState({
         token: _token
       });
@@ -81,7 +86,7 @@ class SpotHouse extends Component {
   tick() {
     if(this.state.token) {
       this.getCurrentlyPlaying(this.state.token);
-      this.updateBackendQueue();
+      //this.updateBackendQueue();
       if (this.state.progress_ms/this.state.item.duration_ms > .95 & !this.state.added) {
         if (this.state.currentQueue.length > 0)
           this.addToSpotifyQueue(this.state.token);
@@ -96,8 +101,6 @@ class SpotHouse extends Component {
   };
 
   setup_lobby = () => {
-    const toSend = {
-    }
     let config = {
       headers: {
         "Content-Type": "application/json",
@@ -106,14 +109,40 @@ class SpotHouse extends Component {
     }
     axios.get(
         "http://localhost:4567/setup",
-        toSend,
         config
     )
         .then(response => {
           // console.log("THIS IS THE BACKEND QUEUE", response)
           this.setState({lobbyID: response.data["lobbyID"]});
-          console.log(this.state.lobbyID);
+          console.log("LOBBY ID: " + this.state.lobbyID);
           this.setup_websocket(this.state.lobbyID);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+  }
+
+  join_lobby = (userID) => {
+    console.log("Join Lobby UserID: " + userID)
+    let toSend = {
+      userID: userID
+    }
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'Access-Control-Allow-Origin': '*',
+      }
+    }
+    axios.post(
+        "http://localhost:4567/joinLobby",
+        toSend,
+        config
+    )
+        .then(response => {
+          // console.log("THIS IS THE BACKEND QUEUE", response)
+          // this.setState({: response.data["content"]});
+          console.log("LobbyID: ".concat(response.data["lobbyID"].toString()));
+          // this.setup_websocket(this.state.lobbyID);
         })
         .catch(function (error) {
           console.log(error);
@@ -124,12 +153,12 @@ class SpotHouse extends Component {
     // TODO create WebSocket listening at and sending to ws://localhost:4567/message
     //const conn = new WebSocket("https://spothouse-app.herokuapp.com/callback#");
     console.log(id);
-    const lobbyURL = "ws://localhost:4567/lobby/".concat(id.toString())
+    const lobbyURL = "ws://localhost:4567/*" //.concat(id.toString()
     console.log(lobbyURL);
-    const conn = new WebSocket(lobbyURL);
+    this.state.conn = this.setState({conn: new WebSocket(lobbyURL)});
 
     // TODO set up client response to messages received from server
-    conn.onmessage = msg => {
+    this.state.conn.onmessage = msg => {
       const data = JSON.parse(msg.data);
       switch (data.type) {
           // default can go anywhere in the switch order ^_^
@@ -138,25 +167,56 @@ class SpotHouse extends Component {
           break;
         case this.MESSAGE_TYPE.CONNECT:
           // We get this message when the server recognizes that we (the client) have connected and sends back our unique id
-          this.myId = data.getProperty("id");
+          console.log(data.id);
+          this.join_lobby(data.id);
+          this.setState({myID: data.id});
+          console.log(JSON.parse(data.queue.split(",{")));
+          this.setState({currentQueue: JSON.parse(data.queue.split(",{"))})
           break;
         case this.MESSAGE_TYPE.UPDATE:
           // We get this message when some client broadcast a message to all clients
           // TODO append to the message board unordered list (in chat.ftl) the received message
-          this.currentQueue.push(data.getProperty("songID"));
+            console.log(data.queue);
+          // this.currentQueue.push(data.uri);
+          this.setState({currentQueue: JSON.parse(data.queue)})
           break;
       }
     };
   }
 
+  //MessageTypes: "request",
+
 // When a user hits the Send! button this method gets called (chat.ftl)
   sendRequest = () => {
+    console.log(this.state.myID)
     // TODO create a new message of type SEND
     let req = {
-      uri: this.clickedSongURI
+      MessageType: "request",
+      name: this.state.clickedSongName,
+      artist: this.state.clickedSongArtist,
+      art: this.state.clickedSongArt,
+      uri: this.state.clickedSongURI,
+      userID: this.state.myID,
+      lobbyID: this.state.lobbyID,
+      type: 2
     }
     // TODO use conn to send the message to the server
-    this.conn.send(req);
+    let reqJSON = JSON.stringify(req);
+    console.log(reqJSON);
+    this.state.conn.send(reqJSON);
+  }
+
+  sendRemove = () => {
+    let message = {
+      MessageType: "remove",
+      name: this.state.clickedRemoveName,
+      userID: this.state.myID,
+      type: 2
+    }
+
+    let messageJSON = JSON.stringify(message);
+    console.log(messageJSON);
+    this.state.conn.send(messageJSON);
   }
   
   updateBackendQueue = () => {
@@ -168,9 +228,9 @@ class SpotHouse extends Component {
     let newQueueRequesters = []
     for (let i = 0; i < this.state.currentQueue.length; i++) {
         let name = this.state.currentQueue[i].name
-        let requester = this.state.currentQueueRequesters[i].name
+        //let requester = this.state.currentQueueRequesters[i].name
         current.push(name)
-        currentRequesters.push(requester)
+        //currentRequesters.push(requester)
     }
       const toSend = {
           songs: current,
@@ -193,7 +253,7 @@ class SpotHouse extends Component {
               orderedListRequesters = response.data["requesterList"]
               for (let i = 0; i < orderedList.length; i++) {
                   let songName = orderedList[i].name
-                  let requesterName = orderedListRequesters[i].name
+                  //let requesterName = orderedListRequesters[i].name
                   for (let j = 0; j < this.state.currentQueue.length; j++) {
                       if (this.state.currentQueue[j].name === songName) {
                           newQueue.push(this.state.currentQueue[j])
@@ -201,6 +261,7 @@ class SpotHouse extends Component {
                       }
                   }
               }
+              console.log("test");
               this.setState({currentQueue: newQueue})
           })
           .catch(function (error) {
@@ -330,12 +391,15 @@ class SpotHouse extends Component {
     let clickedName = e.currentTarget.textContent.split(" -, ")[1]
     let clickedURI = e.currentTarget.textContent.split(" -, ")[2]
     let clickedArt = e.currentTarget.textContent.split(" -, ")[3]
+    await this.setState({clickedSongName: clickedName})
+    await this.setState({clickedSongArtist: clickedArtist})
+    await this.setState({clickedSongArt: clickedArt})
     await this.setState({clickedSongURI: clickedURI})
-    var joined = this.state.currentQueue.concat({name: clickedName,
-      artist: clickedArtist,
-      artwork: clickedArt,
-      uri: clickedURI});
-    await this.setState({currentQueue: joined})
+    // var joined = this.state.currentQueue.concat({name: clickedName,
+    //   artist: clickedArtist,
+    //   artwork: clickedArt,
+    //   uri: clickedURI});
+    // await this.setState({currentQueue: joined})
     this.sendRequest();
     this.setState({count: this.state.count + 1})
   }
@@ -403,6 +467,9 @@ class SpotHouse extends Component {
             
             <Queue 
               songQueue = {this.state.currentQueue}
+              lobbyID = {this.state.lobbyID}
+              userID = {this.state.userID}
+              conn = {this.state.conn}
               />
             <br></br>
             </>

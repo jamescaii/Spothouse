@@ -1,45 +1,102 @@
 import React, {useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import './Queue.css';
+import SpotHouse from "./SpotHouse";
+
+const sendVote = (vote, songName, conn, userID, lobbyID) => {
+    console.log(this.state.myID)
+    // TODO create a new message of type SEND
+    let message = {
+        MessageType: vote,
+        name: songName,
+        userID: userID,
+        lobbyID: lobbyID,
+        type: 2
+    }
+    // TODO use conn to send the message to the server
+    let messageJSON = JSON.stringify(message);
+    console.log(messageJSON);
+    conn.send(messageJSON);
+}
 
 const Queue = props => {
-    const changeColor = () => {
-        console.log("changed")
-        for (const btn of document.querySelectorAll('.vote')) {
-            btn.addEventListener('click', event => {
-                event.currentTarget.classList.toggle('on');
-            });
+    const clickedMap = useRef([])
+    let conn = props.conn
+    let lobby = props.lobbyID
+    let user = props.userID
+
+    const handleUpvote = async (event) => {
+        let songName = event.target.id
+        console.log(songName);
+        let found = false;
+        for (let i = 0; i < clickedMap.current.length; i++) {
+            if (clickedMap.current[i].name === songName) {
+                console.log(clickedMap.current[i].name)
+                clickedMap.current[i].upboolean = !clickedMap.current[i].upboolean
+                found = true
+            }
+        }
+        console.log(clickedMap.current)
+        if (!found) {
+            clickedMap.current.push({name: songName, upboolean: true})
+        }
+        sendVote("upVote", songName, conn, user, lobby);
+    }
+
+
+    const handleDownvote = async (event) => {
+        let songName = event.target.id
+        console.log(songName);
+        let found = false;
+        for (let i = 0; i < clickedMap.current.length; i++) {
+            if (clickedMap.current[i].name === songName) {
+                console.log(clickedMap.current[i].name)
+                clickedMap.current[i].downboolean = !clickedMap.current[i].downboolean
+                found = true
+            }
+        }
+        console.log(clickedMap.current)
+        if (!found) {
+            clickedMap.current.push({name: songName, downboolean: true})
+        }
+        sendVote("downVote", songName, conn, user, lobby);
+    }
+
+    function Clicked(songName, isUp) {
+        for (let i = 0; i < clickedMap.current.length; i++) {
+            if (clickedMap.current[i].name === songName) {
+                //console.log(clickedMap.current[i].name, songName)
+                if (isUp)
+                    return clickedMap.current[i].upboolean
+                else
+                    return clickedMap.current[i].downboolean
+            }
+        }
+        return false
+    }
+
+    function getColorUp(songName) {
+        //console.log(songName)
+        if (!Clicked(songName, true)) {
+            //console.log("not clicked")
+            return { fill: "#687074" }
+        }
+        else {
+            //console.log("clicked")
+            return { fill: "#f48024" }
         }
     }
 
-    const updateSongValue = (props) => {
-        console.log("changed")
-        for (const btn of document.querySelectorAll('.vote')) {
-            btn.addEventListener('click', event => {
-                event.currentTarget.classList.toggle('on');
-            });
+    function getColorDown(songName) {
+        //console.log(songName)
+        if (!Clicked(songName, false)) {
+            //console.log("not clicked")
+            return { fill: "#687074" }
         }
-        let songName = props.target.id
-        console.log(songName)
-        const toSend = {
-            increased: songName
+        else {
+            //console.log("clicked")
+            return { fill: "#f48024" }
         }
-        let config = {
-            headers: {
-                "Content-Type": "application/json",
-                'Access-Control-Allow-Origin': '*',
-            }
-        }
-        axios.post(
-            "/rankings",
-            toSend,
-            config
-        )
-            .then(response => {
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
     }
 
     return (
@@ -52,14 +109,14 @@ const Queue = props => {
                     {props.songQueue.map(item =>
                         <tr>
                             <td align="center">
-                                <span className="vote" onClick={updateSongValue}>
+                                <span className="voteup" onClick={handleUpvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 26h32L18 10 2 26z" fill="currentColor" id={item.name}></path>
+                                    <path d="M2 26h32L18 10 2 26z" style={getColorUp(item.name)} id={item.name}></path>
                                   </svg>
                                 </span>
-                                <span className="vote" onClick={changeColor}>
+                                <span className="votedown" onClick={handleDownvote}>
                                   <svg width="36" height="36">
-                                    <path d="M2 10h32L18 26 2 10z" fill="currentColor"></path>
+                                    <path d="M2 10h32L18 26 2 10z" style={getColorDown(item.name)} id={item.name}></path>
                                   </svg>
                                 </span>
                             </td>

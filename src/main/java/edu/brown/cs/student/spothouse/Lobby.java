@@ -9,6 +9,7 @@ import java.util.Queue;
  * A class representing a Lobby that the users can join and vote on Votables
  */
 public class Lobby<T extends Votable> {
+    private final int lobbyID;
     private final int maxUsers;
     private Elo<T> elo;
     private final Host host;
@@ -16,23 +17,17 @@ public class Lobby<T extends Votable> {
     private final List<User> topUsers = new ArrayList<>();
     private final Queue<T> queue = new PriorityQueue<>();
     private final List<T> queueHistory = new ArrayList<>();
-    private final LobbyWebSocket<T> webSocket;
 
     /**
      * A Constructor for the Lobby class
      * @param host - the host of the Lobby, who will have special permissions
      * @param maxUsers - the maximum number of users the lobby can support
      */
-    public Lobby(Host host, int maxUsers) {
+    public Lobby(Host host, int lobbyID, int maxUsers) {
         this.host = host;
+        this.lobbyID = lobbyID;
         this.maxUsers = maxUsers;
         this.users.add(host);
-        this.webSocket = new LobbyWebSocket<>();
-        this.webSocket.setLobby(this);
-    }
-
-    public LobbyWebSocket<T> getLobbyWebSocket() {
-        return webSocket;
     }
 
     /**
@@ -66,6 +61,25 @@ public class Lobby<T extends Votable> {
      */
     public void addVotable(T votable) {
         this.queue.add(votable);
+    }
+
+    public void removeVotable(String name, String artist, String art, String uri) {
+        this.queue.removeIf(votable -> votable.getAttributes().get(0).equals(name)
+                && votable.getAttributes().get(1).equals(artist)
+                && votable.getAttributes().get(2).equals(art)
+                && votable.getAttributes().get(3).equals(uri));
+    }
+
+    public T getVotable(String name, String artist, String art, String uri) {
+        for (T votable : this.queue) {
+            if (votable.getAttributes().get(0).equals(name)
+                    && votable.getAttributes().get(1).equals(artist)
+                    && votable.getAttributes().get(2).equals(art)
+                    && votable.getAttributes().get(3).equals(uri)) {
+                return votable;
+            }
+        }
+        return null;
     }
 
     /**
@@ -136,10 +150,18 @@ public class Lobby<T extends Votable> {
        this.elo.updateScores(); //todo: synchronize this with new votable coming off the front of the queue
     }
 
-    /**
-     * Updates the scores of the Votables in the Queue
-     */
-    public void updateVotableScores() {
-
+    public String getQueueAsJson() {
+        StringBuilder stringJson = new StringBuilder("");
+        List<String> atts;
+        for (T s : queue) {
+            atts = s.getAttributes();
+            stringJson.append("{\"name:\"").append(atts.get(0))
+                    .append(",\"artist:\" ").append(atts.get(1))
+                    .append(",\"art:\" ").append(atts.get(2))
+                    .append(",\"uri:\" ").append(atts.get(3))
+                    .append("}, ");
+        }
+        System.out.println(stringJson.toString());
+        return stringJson.toString();
     }
 }

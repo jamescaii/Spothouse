@@ -1,5 +1,7 @@
 package edu.brown.cs.student.spothouse;
 
+import java.util.List;
+
 /**
  * An interface representing a User, which includes the Host and Guest
  */

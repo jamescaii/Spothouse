@@ -1,7 +1,7 @@
 package edu.brown.cs.student.spothouse;
 
 import java.io.IOException;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.gson.Gson;
@@ -9,27 +9,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.*;
+import org.json.JSONObject;
+
 
 @WebSocket
-public class LobbyWebSocket<T extends Votable> {
+public class LobbyWebSocket {
     private static final Gson GSON = new Gson();
-    private static final Queue<Session> sessions = new ConcurrentLinkedQueue<>();
-    private final int maxUsers = 5;
+    public static final Map<Integer, org.eclipse.jetty.websocket.api.Session> userToSessions = new HashMap<>();
+    public static final Map<org.eclipse.jetty.websocket.api.Session, Integer> sessionsToUser = new HashMap<>();
+    public static final Map<Integer, Integer> userToLobby = new HashMap<>();
+    public static Map<Integer, ConcurrentLinkedQueue<Session>>
+            lobbyToSessions = new HashMap<>();
+
     private static int nextId = 0;
-    private Lobby<T> lobby;
-
-//    public LobbyWebSocket(Lobby<T> lobby, int maxUsers) {
-//        this.lobby = lobby;
-//        this.maxUsers = maxUsers;
-//    }
-
-    public void setLobby(Lobby<T> lobby) {
-        this.lobby = lobby;
-    }
 
     private static enum MESSAGE_TYPE {
         CONNECT,
@@ -39,44 +32,153 @@ public class LobbyWebSocket<T extends Votable> {
 
     @OnWebSocketConnect
     public void connected(Session session) throws Exception, IOException {
-        if (sessions.size() < maxUsers) {
-            sessions.add(session);
-
             // TODO build CONNECT message
             JsonObject json = new JsonObject();
             json.addProperty("type", MESSAGE_TYPE.CONNECT.ordinal());
             json.addProperty("id", nextId);
-            if (nextId != 0) {
-                lobby.addUser(new Guest("userName", nextId));
-            }
+            userToSessions.put(nextId, session);
+            sessionsToUser.put(session, nextId);
+//            if (nextId != 0) {
+//                lobby.addUser(new Guest("userName", nextId));
+//            }
             nextId++;
-            // make sure to send a unique id!
+
+            json.addProperty("queue", Main.lobbies.get(1).getQueueAsJson());
+
             // Hint: can use ordinal to get the number position of an enum, MESSAGE_TYPE.CONNECT.ordinal());
 
             // TODO send message to session
             session.getRemote().sendString(GSON.toJson(json));
             // Hint: session.getRemote().sendString({message})
-        }
     }
 
     @OnWebSocketClose
     public void closed(Session session, int statusCode, String reason) {
         // TODO remove session from sessions
-        sessions.remove(session);
+        System.out.println("Closed: " + reason);
+        lobbyToSessions.get(userToLobby.get(sessionsToUser.get(session))).remove(session);
+        userToLobby.remove(sessionsToUser.get(session));
+        userToSessions.remove(sessionsToUser.get(session));
+        sessionsToUser.remove(session);
     }
 
     @OnWebSocketMessage
     public void message(Session session, String message) throws IOException {
         // TODO convert message to JsonObject
         // Hint GSON.fromJson
+        System.out.println(message);
         JsonObject messageJson = GSON.fromJson(message, JsonObject.class);
 
+        String messageType = messageJson.getAsJsonPrimitive("MessageType").getAsString();
+        int userID = messageJson.getAsJsonPrimitive("userID").getAsInt();
+        int lobbyID = messageJson.getAsJsonPrimitive("lobbyID").getAsInt();
+
+        String returnQueue;
+
+        System.out.println(messageType);
+
+        switch (messageType) {
+            case "request": returnQueue = this.request(userID, lobbyID, messageJson);
+                break;
+            case "remove": returnQueue = this.removeSong(userID, lobbyID, messageJson);
+                break;
+            case "upvote": returnQueue = this.upVote(userID, lobbyID, messageJson);
+                break;
+            case "downvote": returnQueue = this.downVote(userID, lobbyID, messageJson);
+                break;
+            case "removeUpvote": returnQueue = this.removeUpVote(userID, lobbyID, messageJson);
+                break;
+            case "removeDownvote": returnQueue = this.removeDownVote(userID, lobbyID, messageJson);
+                break;
+            default: returnQueue = this.defaultQueue(lobbyID);
+        }
+
         // TODO build UPDATE message
-        messageJson.addProperty("type", MESSAGE_TYPE.UPDATE.ordinal());
+        JsonObject updateJson = new JsonObject();
+        updateJson.addProperty("type", MESSAGE_TYPE.UPDATE.ordinal());
+        updateJson.addProperty("queue", returnQueue);
 
         // TODO send UPDATE message to each connected client.
+        userToLobby.put(userID, 1);
+        lobbyToSessions.get(lobbyID).add(session);
+        ConcurrentLinkedQueue<Session> sessions = lobbyToSessions.get(lobbyID);
+        //Set<Integer> sessionUserSet = new HashSet<>();
+
         for (Session sesh : sessions) {
-            sesh.getRemote().sendString(messageJson.getAsString());
+            //sessionUserSet.add(sessionsToUser.get(sesh));
+            sesh.getRemote().sendString(updateJson.toString());
         }
+//        for (int seshUser : sessionUserSet) {
+//            userToSessions.get(seshUser).getRemote().sendString(updateJson.toString());
+//        }
     }
+
+    public String request(int userID, int lobbyID, JsonObject requestJson) {
+        Main.lobbies.get(lobbyID).addVotable(new Song(
+                requestJson.getAsJsonPrimitive("name").toString(),
+                requestJson.getAsJsonPrimitive("artist").toString(),
+                requestJson.getAsJsonPrimitive("art").toString(),
+                requestJson.getAsJsonPrimitive("uri").toString(),
+                Main.lobbies.get(lobbyID).getUserByID(userID)));
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+
+    public String removeSong(int userID, int lobbyID, JsonObject requestJson) {
+        Main.lobbies.get(lobbyID).removeVotable(requestJson.getAsJsonPrimitive("name").toString(),
+                requestJson.getAsJsonPrimitive("artist").toString(),
+                requestJson.getAsJsonPrimitive("art").toString(),
+                requestJson.getAsJsonPrimitive("uri").toString());
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+
+    public String upVote(int userID, int lobbyID, JsonObject requestJson) {
+        Main.lobbies.get(lobbyID).getVotable(requestJson.getAsJsonPrimitive("name").toString(),
+                requestJson.getAsJsonPrimitive("artist").toString(),
+                requestJson.getAsJsonPrimitive("art").toString(),
+                requestJson.getAsJsonPrimitive("uri").toString())
+                .addPositiveVote(Main.lobbies.get(lobbyID).getUserByID(userID));
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+
+    public String downVote(int userID, int lobbyID, JsonObject requestJson) {
+        Main.lobbies.get(lobbyID).getVotable(requestJson.getAsJsonPrimitive("name").toString(),
+                requestJson.getAsJsonPrimitive("artist").toString(),
+                requestJson.getAsJsonPrimitive("art").toString(),
+                requestJson.getAsJsonPrimitive("uri").toString())
+                .addNegativeVote(Main.lobbies.get(lobbyID).getUserByID(userID));
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+
+    public String removeUpVote(int userID, int lobbyID, JsonObject requestJson) {
+        Main.lobbies.get(lobbyID).getVotable(requestJson.getAsJsonPrimitive("name").toString(),
+                requestJson.getAsJsonPrimitive("artist").toString(),
+                requestJson.getAsJsonPrimitive("art").toString(),
+                requestJson.getAsJsonPrimitive("uri").toString())
+                .removePositiveVote(Main.lobbies.get(lobbyID).getUserByID(userID));
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+
+    public String removeDownVote(int userID, int lobbyID, JsonObject requestJson) {
+        Main.lobbies.get(lobbyID).getVotable(requestJson.getAsJsonPrimitive("name").toString(),
+                requestJson.getAsJsonPrimitive("artist").toString(),
+                requestJson.getAsJsonPrimitive("art").toString(),
+                requestJson.getAsJsonPrimitive("uri").toString())
+                .removeNegativeVote(Main.lobbies.get(lobbyID).getUserByID(userID));
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+
+    public String defaultQueue(int lobbyID) {
+        Main.lobbies.get(lobbyID).updateUserScores();
+        return Main.lobbies.get(lobbyID).getQueueAsJson();
+    }
+//    @OnWebSocketError
+//    public void error(Session session, Throwable error) {
+//        System.out.println(error.toString());
+//    }
 }

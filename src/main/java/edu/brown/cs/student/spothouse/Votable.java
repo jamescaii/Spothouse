@@ -83,4 +83,10 @@ public interface Votable {
      * Functionality for what happens when the Votable is played
      */
     void played();
+
+    /**
+     * Gets the attributes of the Votable
+     * @return - A list of String representing the Votable's attributes
+     */
+    List<String> getAttributes();
 }

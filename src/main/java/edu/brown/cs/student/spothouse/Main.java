@@ -5,18 +5,16 @@ import java.io.*;
 import freemarker.template.Configuration;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONArray;
-import spark.ExceptionHandler;
-import spark.Request;
-import spark.Response;
-import spark.Route;
-import spark.Spark;
+import spark.*;
 import org.json.JSONObject;
 import spark.template.freemarker.FreeMarkerEngine;
 
@@ -27,7 +25,7 @@ public final class Main {
 
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
-  private static final Map<Integer, Lobby<Song>> lobbies = new HashMap<>();
+  public static Map<Integer, Lobby<Song>> lobbies = new HashMap<>();
   private static List<Song> songs;
   private static Set<String> songSet = new HashSet<>();
 
@@ -95,18 +93,19 @@ public final class Main {
   }
 
   private void runSparkServer(int port) {
-    Spark.webSocket("/localhost:4567/lobby/1", LobbyWebSocket.class);
+    Spark.webSocket("/*", LobbyWebSocket.class);
 
     Spark.port(getHerokuAssignedPort());
+    System.out.println("PORT: " + getHerokuAssignedPort());
 
-    String localhost = "127.0.0.1";
-    Spark.ipAddress(localhost);
+//    String localhost = "127.0.0.1";
+//    Spark.ipAddress(localhost);
 
     //Spark.port(port);
 
-    Spark.externalStaticFileLocation("src/main/resources");
+    Spark.webSocket("/*", LobbyWebSocket.class);
 
-    Spark.webSocket("/localhost:4567/lobby/1", LobbyWebSocket.class);
+    Spark.externalStaticFileLocation("src/main/resources");
 
     Spark.options("/*", (request, response) -> {
       String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
@@ -128,10 +127,8 @@ public final class Main {
     FreeMarkerEngine freeMarker = createEngine();
     Spark.post("/queue", new QueueHandler());
     Spark.post("/rankings", new RankingHandler());
-    Spark.get("/setup", new SetupGUI());
-    Spark.post("/setupLobby", new SetupLobby());
-    //Spark.get("/", new LoginGUI());
-    Spark.get("/lobby/:lobbyID", new LobbyGUI(), freeMarker);
+    Spark.get("/setup", new SetupLobby());
+    Spark.post("/joinLobby", new JoinLobby());
   }
 
   public static Map<Integer, Lobby<Song>> getLobbies() {
@@ -208,30 +205,6 @@ public final class Main {
       JSONArray songsJSON = data.getJSONArray("songs");
       List<String> songList = new ArrayList<>();
       Set<String> frontSongSet = new HashSet<>();
-      for (int i = 0; i < songsJSON.length(); i++) {
-        songList.add(songsJSON.getString(i));
-        frontSongSet.add(songsJSON.getString(i));
-      }
-      Set<String> removedSongs = new HashSet<>(songSet);
-      removedSongs.removeAll(frontSongSet);
-      Set<String> newAddedSongs = new HashSet<>(frontSongSet);
-      newAddedSongs.removeAll(songSet);
-      Set<String> tempSongSet = new HashSet<>(newAddedSongs);
-      Set<String> intersectionSongs = new HashSet<>(frontSongSet);
-      intersectionSongs.retainAll(songSet);
-      tempSongSet.addAll(intersectionSongs);
-      songSet = tempSongSet;
-      List<Song> nonRemovedList = new ArrayList<>();
-      for (Song song: songs) {
-        if (!removedSongs.contains(song.getName())) {
-          nonRemovedList.add(song);
-        }
-      }
-      songs = nonRemovedList;
-      for (String s: newAddedSongs) {
-        Song newSong = new Song(s, new Guest("NA", 0));
-        songs.add(newSong);
-      }
       Map<String, Object> variables = ImmutableMap.of("songList", songs);
       return GSON.toJson(variables);
     }
@@ -242,7 +215,7 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String toUpdate = data.getString("increased");
       int voterID = data.getInt("voterID");
-      Lobby<Song> lobby = lobbies.get(0); //todo: change!!!
+      Lobby<Song> lobby = lobbies.get(1); //todo: change!!!
       User voter = lobby.getUserByID(voterID);
 
       System.out.println(toUpdate);
