@@ -16,6 +16,7 @@ public final class RankingAlgorithm {
           if (userName.equals(user.getUsername())) {
             voterScore = user.getNormalizedScore();
           }
+          break;
         }
         if (isIncrease) {
           System.out.println("Increased Score by " + voterScore);
@@ -45,6 +46,7 @@ public final class RankingAlgorithm {
           }
         }
       }
+      break;
     }
     Result result = new Result(copySongList, copyUserList);
     return result;
