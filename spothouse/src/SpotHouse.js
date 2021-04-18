@@ -97,7 +97,7 @@ class SpotHouse extends Component {
         this.getCurrentlyPlaying(this.state.hostToken);
         this.retrieveBackendQueue();
         this.getUsersList();
-        console.log(this.state.added)
+        console.log(window.songqueue)
         if (this.state.progress_ms / this.state.item.duration_ms < .2) {
           this.setState({ added: false })
         }

@@ -38,7 +38,7 @@ public class Song implements Comparable<Song> {
     votes += vote;
   }
   public void subVote(double vote) {
-    // when we add the vote we want to look at the user score to scale it
+    // when we sub the vote we want to look at the user score to scale it
     votes -= vote;
   }
   @Override
