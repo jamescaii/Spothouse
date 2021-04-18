@@ -97,7 +97,7 @@ class SpotHouse extends Component {
         this.getCurrentlyPlaying(this.state.hostToken);
         this.retrieveBackendQueue();
         this.getUsersList();
-        console.log(window.songqueue)
+        console.log(this.state.userList)
         if (this.state.progress_ms / this.state.item.duration_ms < .2) {
           this.setState({ added: false })
         }
@@ -480,6 +480,14 @@ class SpotHouse extends Component {
           console.log(error);
         });
   }
+  getFire(item) {
+    if (item.onFire) {
+      console.log("on fire")
+      return (<span>🔥</span>);
+
+    }
+
+  }
 
   render() {
     return (
@@ -536,7 +544,7 @@ class SpotHouse extends Component {
                   <div className="widercolumn">
                     <h3 className="userslist" style={{fontSize: "large", textAlign: "right"}}>
                     Users List:</h3>
-                    {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
+                    {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{this.getFire(item)}{item.username}</p>)}
                   </div>
                 </div>
                 <br></br>
@@ -600,7 +608,7 @@ class SpotHouse extends Component {
                   <div className="widercolumn">
                     <h3 className="userslist" style={{fontSize: "large", textAlign: "right"}}>
                     Users List:</h3>
-                    {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{item.username}</p>)}
+                    {this.state.userList.map(item => <p className="userslist" style={{fontSize: "large"}}>{this.getFire(item)}{item.username}</p>)}
                   </div>
                 </div>
                 <br></br>
