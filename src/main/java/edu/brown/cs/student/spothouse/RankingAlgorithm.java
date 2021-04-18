@@ -2,7 +2,12 @@ package edu.brown.cs.student.spothouse;
 
 import java.util.ArrayList;
 
+/**
+ * Class to store the static methods for algorithms run in the backend.
+ */
 public final class RankingAlgorithm {
+
+  private RankingAlgorithm() { }
 
   /**
    * Ranking algorithm. Updates the current queue order based on the new rankings
@@ -15,8 +20,10 @@ public final class RankingAlgorithm {
    * @param userArrayList current users
    * @return newly updated song and user lists.
    */
-  public static Result updateRankings(String toChange, String userName, int numAdd, boolean isIncrease,
-                               ArrayList<Song> songArrayList, ArrayList<User> userArrayList) {
+  public static Result updateRankings(String toChange, String userName,
+                                      int numAdd, boolean isIncrease,
+                                      ArrayList<Song> songArrayList,
+                                      ArrayList<User> userArrayList) {
     ArrayList<Song> copySongList = songArrayList;
     ArrayList<User> copyUserList = userArrayList;
     for (Song s: copySongList) {

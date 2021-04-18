@@ -1,5 +1,8 @@
 package edu.brown.cs.student.spothouse;
 
+/**
+ * Class to store information about a user in the room.
+ */
 public class User implements Comparable<User> {
 
   private final String username;
@@ -9,7 +12,7 @@ public class User implements Comparable<User> {
   private static final double SIGMOID_SCALE = -0.25;
 
   /**
-   * Class to store information about a user in the room.
+   * Constructor receives the user name and the host boolean.
    * @param username user name
    * @param isHost boolean to mark the user as host or guest.
    */
@@ -43,7 +46,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * accessor method for user score
+   * accessor method for user score.
    * @return user score
    */
   public double getScore() {
@@ -59,7 +62,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * adds scores
+   * adds scores.
    * @param s score value to add
    */
   public void addScore(double s) {
@@ -67,7 +70,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * subtracts scores
+   * subtracts scores.
    * @param s score value to subtract
    */
   public void subScore(double s) {
@@ -83,7 +86,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * override comparable method to customize based on scores
+   * override comparable method to customize based on scores.
    * @param u user to compare
    * @return integer to represent the comparison.
    */

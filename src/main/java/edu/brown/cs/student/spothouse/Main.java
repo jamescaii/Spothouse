@@ -31,9 +31,9 @@ import java.util.Set;
  */
 public final class Main {
 
-  private static final Map<Integer, ArrayList<Song>> songs = new HashMap<>();
-  private static final Map<Integer, ArrayList<User>> users = new HashMap<>();
-  private static final Map<Integer, HashSet<String>> songSetMap = new HashMap<>();
+  private static final Map<Integer, ArrayList<Song>> SONGS = new HashMap<>();
+  private static final Map<Integer, ArrayList<User>> USERS = new HashMap<>();
+  private static final Map<Integer, HashSet<String>> SONG_SET_MAP = new HashMap<>();
   private static final int DEFAULT_PORT = 4567;
   private static final Gson GSON = new Gson();
   private static String hostToken = "";
@@ -154,7 +154,7 @@ public final class Main {
   }
 
   /**
-   * initial setup handler
+   * initial setup handler.
    */
   private static class SetupHandler implements Route {
 
@@ -176,20 +176,21 @@ public final class Main {
       User newUser = new User(hostName, true);
       ArrayList<User> tempList = new ArrayList<>();
       tempList.add(newUser);
-      users.put(code, tempList);
+      USERS.put(code, tempList);
       // new songs list
       ArrayList<Song> queue = new ArrayList<>();
-      songs.put(code, queue);
+      SONGS.put(code, queue);
       // map of the set song
       HashSet<String> songSet = new HashSet<>();
-      songSetMap.put(code, songSet);
-      Map<String, Object> variables = ImmutableMap.of("songList", "", "name", "", "userList", users.get(code));
+      SONG_SET_MAP.put(code, songSet);
+      Map<String, Object> variables = ImmutableMap.of(
+          "songList", "", "name", "", "userList", USERS.get(code));
       return GSON.toJson(variables);
     }
   }
 
   /**
-   * handler to set up a new user that joins a room
+   * handler to set up a new user that joins a room.
    */
   private static class JoinHandler implements Route {
 
@@ -207,18 +208,19 @@ public final class Main {
       String guestName = data.getString("guestName");
       User newUser = new User(guestName, false);
       // update user list
-      ArrayList<User> tempList = users.get(code);
+      ArrayList<User> tempList = USERS.get(code);
       tempList.add(newUser);
-      users.put(code, tempList);
-      System.out.println(users.get(code).get(1).getUsername());
-      Map<String, Object> variables = ImmutableMap.of("name", "", "hostToken", hostToken, "backendSongs",
-          songs.get(code), "code", code, "userList", users.get(code));
+      USERS.put(code, tempList);
+      System.out.println(USERS.get(code).get(1).getUsername());
+      Map<String, Object> variables = ImmutableMap.of(
+          "name", "", "hostToken", hostToken, "backendSongs",
+          SONGS.get(code), "code", code, "userList", USERS.get(code));
       return GSON.toJson(variables);
     }
   }
 
   /**
-   * Handler to get user infos
+   * Handler to get user infos.
    */
   private static class UsersHandler implements Route {
 
@@ -233,7 +235,7 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-      Map<String, Object> variables = ImmutableMap.of("userList", users.get(code));
+      Map<String, Object> variables = ImmutableMap.of("userList", USERS.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -274,25 +276,25 @@ public final class Main {
       }
       // update the map with new songs
       for (ArrayList<String> x : tempSongList) {
-        if (!songSetMap.get(code).contains(x.get(3))) {
+        if (!SONG_SET_MAP.get(code).contains(x.get(3))) {
           System.out.println("Song added!");
           Song newSong = new Song(x.get(0), x.get(1), x.get(2), x.get(3), userName, 0);
-          songs.get(code).add(newSong);
-          System.out.println(songs.get(code));
-          songSetMap.get(code).add(x.get(3));
+          SONGS.get(code).add(newSong);
+          System.out.println(SONGS.get(code));
+          SONG_SET_MAP.get(code).add(x.get(3));
         }
       }
       // update the map with any repeated songs.
       Set<String> repeated = new HashSet<>();
       ArrayList<Song> noRepeats = new ArrayList<>();
-      for (Song element: songs.get(code)) {
+      for (Song element: SONGS.get(code)) {
         if (!repeated.contains(element.getName())) {
           noRepeats.add(element);
           repeated.add(element.getName());
         }
       }
-      songs.put(code, noRepeats);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code));
+      SONGS.put(code, noRepeats);
+      Map<String, Object> variables = ImmutableMap.of("songList", SONGS.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -315,18 +317,18 @@ public final class Main {
       String roomCode = data.getString("code");
       int code = Integer.parseInt(roomCode);
       // update a set song
-      songSetMap.get(code).remove(songUri);
+      SONG_SET_MAP.get(code).remove(songUri);
       ArrayList<Song> tempList = new ArrayList<>();
-      for (Song s: songs.get(code)) {
+      for (Song s: SONGS.get(code)) {
         if (!s.getUri().equals(songUri)) {
           tempList.add(s);
         }
       }
       // update the list.
-      songs.put(code, tempList);
+      SONGS.put(code, tempList);
       System.out.println("Song removed!");
-      System.out.println(songs.get(code));
-      Map<String, Object> variables = ImmutableMap.of("songSet", songSetMap.get(code));
+      System.out.println(SONGS.get(code));
+      Map<String, Object> variables = ImmutableMap.of("songSet", SONG_SET_MAP.get(code));
       return GSON.toJson(variables);
     }
   }
@@ -337,7 +339,7 @@ public final class Main {
   private static class RankingHandler implements Route {
 
     /**
-     * gets the current songs and update the rankings
+     * gets the current songs and update the rankings.
      * @param request request for the current queue info.
      * @param response response.
      * @return JSON object of users.
@@ -353,20 +355,21 @@ public final class Main {
       boolean isIncrease = Boolean.parseBoolean(data.getString("isIncrease"));
       // run the algorithm
       Result r = RankingAlgorithm.updateRankings(toChange, userName, numAdd, isIncrease,
-          songs.get(code), users.get(code));
+          SONGS.get(code), USERS.get(code));
       // update the lists
-      songs.put(code, r.getSongList());
-      users.put(code, r.getUserList());
-      ArrayList<Song> tempList = songs.get(code);
+      SONGS.put(code, r.getSongList());
+      USERS.put(code, r.getUserList());
+      ArrayList<Song> tempList = SONGS.get(code);
       Collections.sort(tempList);
-      songs.put(code, tempList);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "name", toChange, "userList", users.get(code));
+      SONGS.put(code, tempList);
+      Map<String, Object> variables = ImmutableMap.of(
+          "songList", SONGS.get(code), "name", toChange, "userList", USERS.get(code));
       return GSON.toJson(variables);
     }
   }
 
   /**
-   * Handler to get the current queue on the front end
+   * Handler to get the current queue on the front end.
    */
   private static class GetQueueHandler implements Route {
 
@@ -381,15 +384,16 @@ public final class Main {
       JSONObject data = new JSONObject((request.body()));
       String roomCode = data.getString("roomCode");
       int code = Integer.parseInt(roomCode);
-      ArrayList<User> tempList = users.get(code);
+      ArrayList<User> tempList = USERS.get(code);
       Collections.sort(tempList);
       int listLength = tempList.size();
       // update onFire status.
       if (listLength >= 4) {
         tempList = RankingAlgorithm.addOnFire(tempList, listLength);
       }
-      users.put(code, tempList);
-      Map<String, Object> variables = ImmutableMap.of("songList", songs.get(code), "userList", users.get(code));
+      USERS.put(code, tempList);
+      Map<String, Object> variables = ImmutableMap.of(
+          "songList", SONGS.get(code), "userList", USERS.get(code));
       return GSON.toJson(variables);
     }
   }
