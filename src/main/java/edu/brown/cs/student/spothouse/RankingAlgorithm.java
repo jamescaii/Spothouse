@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public final class RankingAlgorithm {
 
+  private RankingAlgorithm() { }
   /**
    * Ranking algorithm. Updates the current queue order based on the new rankings
    * checked periodically.

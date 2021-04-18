@@ -43,7 +43,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * accessor method for user score
+   * accessor method for user score.
    * @return user score
    */
   public double getScore() {
@@ -59,7 +59,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * adds scores
+   * adds scores.
    * @param s score value to add
    */
   public void addScore(double s) {
@@ -67,7 +67,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * subtracts scores
+   * subtracts scores.
    * @param s score value to subtract
    */
   public void subScore(double s) {
@@ -83,7 +83,7 @@ public class User implements Comparable<User> {
   }
 
   /**
-   * override comparable method to customize based on scores
+   * override comparable method to customize based on scores.
    * @param u user to compare
    * @return integer to represent the comparison.
    */
