@@ -1,4 +1,4 @@
-package edu.brown.cs.student.spothouse;
+package edu.brown.cs.student.spothouse.components;
 
 import spark.ModelAndView;
 import spark.Request;

@@ -1,4 +1,4 @@
-package edu.brown.cs.student.spothouse;
+package edu.brown.cs.student.spothouse.components;
 
 /**
  * Class to store information about a user in the room.

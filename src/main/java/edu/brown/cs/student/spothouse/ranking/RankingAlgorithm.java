@@ -1,6 +1,9 @@
-package edu.brown.cs.student.spothouse;
+package edu.brown.cs.student.spothouse.ranking;
 
 import java.util.ArrayList;
+
+import edu.brown.cs.student.spothouse.components.Song;
+import edu.brown.cs.student.spothouse.components.User;
 
 public final class RankingAlgorithm {
 

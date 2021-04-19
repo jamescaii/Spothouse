@@ -1,7 +1,6 @@
 package edu.brown.cs.student.stars;
 
-import edu.brown.cs.student.spothouse.Song;
-import edu.brown.cs.student.spothouse.User;
+import edu.brown.cs.student.spothouse.components.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

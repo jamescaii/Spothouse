@@ -1,10 +1,9 @@
 package edu.brown.cs.student.stars;
 
-import edu.brown.cs.student.spothouse.RankingAlgorithm;
-import edu.brown.cs.student.spothouse.Result;
-import edu.brown.cs.student.spothouse.Song;
-import edu.brown.cs.student.spothouse.User;
-import org.checkerframework.checker.units.qual.A;
+import edu.brown.cs.student.spothouse.ranking.RankingAlgorithm;
+import edu.brown.cs.student.spothouse.ranking.Result;
+import edu.brown.cs.student.spothouse.components.Song;
+import edu.brown.cs.student.spothouse.components.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class RankingAlgorithmTest {
   private Song song1;
